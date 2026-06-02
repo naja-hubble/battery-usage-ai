@@ -1,0 +1,39 @@
+# Battery Usage AI — pipeline configuration
+# Copy to config.local.yaml to override locally (config.local.yaml is git-ignored).
+
+s3:
+  bucket: rprm-alpha-01
+  # Per-device/user collections of formatted battery telemetry live under this prefix.
+  collection_prefix: "thinklog/formatted/battery/collection/"
+  # AWS credentials CSV (downloaded from IAM console). Columns: "Access key ID","Secret access key".
+  credentials_csv: "key/ymaeda6_accessKeys.csv"
+  region: null            # null => boto3 default resolution
+
+cohort:
+  n_users: 25             # how many users to download/analyze
+  min_battery_bytes: 20000  # skip near-empty collections (no real usage history)
+  min_rows: 50            # skip users whose parsed battery series is shorter than this (rows)
+  seed: 42                # reproducible random cohort selection
+  selection: random       # random | largest  (largest => most data-rich users first)
+  max_workers: 8          # concurrent S3 downloads
+
+# Which artifacts to fetch per user. battery is required; others add context.
+download:
+  artifacts: [battery, battery_info, vendor, drain_rate, product]
+
+paths:
+  data_dir: "data"        # raw/, processed/, reports/ created underneath
+
+analysis:
+  # Cap the gap between two samples when time-weighting (hours). Gaps longer than
+  # this are treated as "logger asleep" and excluded from time-weighted ratios.
+  max_sample_gap_hours: 2.0
+  # A discharge session must drain at least this many % and last this long to count.
+  min_session_drain_pct: 3
+  min_session_minutes: 5
+  # KMeans usage personas (set 0 to disable clustering).
+  n_personas: 4
+  # Use pseudonymous ids (user_xxxxxxxx) in the shareable report.md and figures so
+  # usernames/serials don't leave the local data/ tree. Raw ids stay in the
+  # git-ignored manifest.json + cohort_features.csv for local joins.
+  anonymize: true
