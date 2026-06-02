@@ -19,11 +19,11 @@ BATTERY_COLUMNS: List[str] = [
     "eventCat",
     "chargeStatus",
     "acdcMode",
-    "remainingCapacityInPercentage",
+    "remainingCapacityInPercentage",  # = RSOC (remainingCapacity/fullChargeCapacity*100), 0-100
     "cycleCount",
     "serialNumber",
-    "remainingCapacity",            # mAh (or mWh) — instantaneous
-    "fullChargeCapacity",           # mAh — current full-charge capacity (drives SOH)
+    "remainingCapacity",            # mWh (per Power Manager PWM decoder) — instantaneous
+    "fullChargeCapacity",           # mWh — current full-charge capacity (drives SOH)
     "RemainingTime",                # minutes estimate
     "totalChargedCapacity",         # cumulative throughput counter
     "totalBatteryAwakeHrs",         # cumulative awake-on-battery hours
@@ -68,21 +68,22 @@ BATTERY_CUMULATIVE_COLUMNS: List[str] = [
 # acdcMode: 1 => on AC (capacity trends up), 0 => on battery (capacity trends down).
 ACDC_MODE: Dict[int, str] = {0: "battery", 1: "ac"}
 
-# chargeStatus correlates 1:1 with power state:
-#   2 => discharging (always paired with acdcMode==0)
-#   1 => charging    (acdcMode==1)
-#   0 => ac_idle / maintained full (acdcMode==1, not actively charging)
-CHARGE_STATUS: Dict[int, str] = {0: "ac_idle", 1: "charging", 2: "discharging"}
+# chargeStatus (Power Manager PWM decoder):
+#   0 => No activity (no charge or discharge current)
+#   1 => Charge
+#   2 => Discharge
+CHARGE_STATUS: Dict[int, str] = {0: "no_activity", 1: "charging", 2: "discharging"}
 
-# eventCat: 0 dominates (periodic sample); 1..5 are transition/marker events.
-# Exact 1..5 semantics are not documented; treat as opaque categorical markers.
+# eventCat / "Event" (Power Manager PWM decoder):
+#   0 => Autonomic (30-minute timer OR battery-insertion event) — the dominant periodic sample
+#   1 => Login   2 => Logoff   3 => Suspend   4 => Resume   5 => AC/DC power source change
 EVENT_CAT: Dict[int, str] = {
-    0: "periodic",
-    1: "event_1",
-    2: "event_2",
-    3: "event_3",
-    4: "event_4",
-    5: "event_5",
+    0: "autonomic",
+    1: "login",
+    2: "logoff",
+    3: "suspend",
+    4: "resume",
+    5: "ac_dc_change",
 }
 
 # ---------------------------------------------------------------------------

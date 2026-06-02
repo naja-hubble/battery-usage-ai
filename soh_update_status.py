@@ -21,7 +21,7 @@ import pandas as pd
 
 from battery_usage.config import load_config
 
-STALE_DAYS = 90            # SoH not updated >= this -> "stale"
+STALE_DAYS = 60            # SoH not updated >= this -> "stale" (active = flat tail < 60d)
 VERY_STALE_DAYS = 180      # >= this -> "very_stale" (red)
 NOW = pd.Timestamp("2026-06-02")   # reference "today" for staleness (no wall-clock dep)
 

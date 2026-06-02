@@ -10,9 +10,8 @@ Scope is deliberately conservative — only mechanical cleanups:
   1. drop non-printable / control characters and trim whitespace
   2. strip a trailing manufacture-year suffix (20xx)
 
-It does NOT merge cross-brand aliases (e.g. SWD<->Sunwoda, LGC<->LGES); those are
-domain judgements, left to the explicit opt-in ``ALIAS_MAP`` below (empty by
-default, so nothing is silently merged).
+It also applies user-confirmed cross-brand alias merges via ``ALIAS_MAP``
+(LGC+LGES -> LG, SWD -> Sunwoda).
 """
 from __future__ import annotations
 
@@ -21,9 +20,10 @@ from typing import Dict, Optional
 
 _YEAR_SUFFIX = re.compile(r"\s*20\d{2}\s*$")   # e.g. "SMP2023", "Sunwoda2023"
 
-# Optional cross-brand alias merges. Keys/values are POST-normalization names.
-# Empty by default; populate to opt in, e.g. {"SWD": "Sunwoda", "LGC": "LGES"}.
-ALIAS_MAP: Dict[str, str] = {}
+# Cross-brand alias merges (user-confirmed). Keys/values are POST-normalization names.
+#   LGC + LGES -> LG   (LG Chem / LG Energy Solution are one cell vendor)
+#   SWD        -> Sunwoda  (SWD is Sunwoda's abbreviation)
+ALIAS_MAP: Dict[str, str] = {"LGC": "LG", "LGES": "LG", "SWD": "Sunwoda"}
 
 
 def normalize_vendor(raw) -> Optional[str]:

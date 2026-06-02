@@ -1,0 +1,40 @@
+===== PAGE 1 =====
+Battery log file logs battery information below. 
+ 
+1. Event 
+ 0: Autonomic (either by 30 minute timer or by Battery insertion event) 
+ 1: Login 
+ 2: Logoff 
+ 3: Suspend 
+ 4: Resume 
+ 5:AC/DC Power Source Change 
+ 
+2. Charge status 
+ 0: No activity (no charge or discharge current) 
+ 1: Charge 
+ 2: Discharge 
+ 
+3. AC/DC mode 
+ 0: DC (battery) power 
+ 1: AC Power 
+ 
+4. Battery Charge remaining (%) 
+ 
+5. Remaining capacity (mWh) 
+ 
+6. Full charge capacity (mWh) 
+ 
+7. Cycle count 
+ 
+8. Remaining Time 
+ When Charging: Average Time to Full (estimate of remaining time to full charge) 
+ When Discharging: Average Time to Empty (estimate of remaining time to battery 
+empty) 
+ 
+9. Total Charged Capacity (Wh) 
+10. Total Battery Awake Hrs 
+11. Hours at/near Full Charge 
+12. Hours at High Temperature (>45 deg C) 
+13. Hours at Full Charge and High Temperature 
+ 
+                 
