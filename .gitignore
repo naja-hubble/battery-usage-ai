@@ -7,7 +7,7 @@ key/
 config.local.yaml
 
 # ---- Downloaded user data & generated outputs (PII — keep local only) ----
-data/
+data/raw/
 _sample/
 *.PWM
 *.7z

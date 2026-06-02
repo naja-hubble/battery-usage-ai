@@ -1,0 +1,46 @@
+|--- min_rsoc <= 6.50
+|   |--- time_ratio_below_20pct <= 0.02
+|   |   |--- frac_at_full <= 0.46
+|   |   |   |--- median_drain_pct_per_hr <= 19.78
+|   |   |   |   |--- class: 1
+|   |   |   |--- median_drain_pct_per_hr >  19.78
+|   |   |   |   |--- class: 1
+|   |   |--- frac_at_full >  0.46
+|   |   |   |--- cycles_per_year <= 28.90
+|   |   |   |   |--- class: 1
+|   |   |   |--- cycles_per_year >  28.90
+|   |   |   |   |--- class: 0
+|   |--- time_ratio_below_20pct >  0.02
+|   |   |--- cycles_per_month <= 3.41
+|   |   |   |--- mean_session_minutes <= 2914.05
+|   |   |   |   |--- class: 1
+|   |   |   |--- mean_session_minutes >  2914.05
+|   |   |   |   |--- class: 0
+|   |   |--- cycles_per_month >  3.41
+|   |   |   |--- frac_at_full <= 0.47
+|   |   |   |   |--- class: 0
+|   |   |   |--- frac_at_full >  0.47
+|   |   |   |   |--- class: 0
+|--- min_rsoc >  6.50
+|   |--- median_drain_pct_per_hr <= 0.42
+|   |   |--- frac_at_full <= 0.43
+|   |   |   |--- median_dod_pct <= 4.50
+|   |   |   |   |--- class: 0
+|   |   |   |--- median_dod_pct >  4.50
+|   |   |   |   |--- class: 0
+|   |   |--- frac_at_full >  0.43
+|   |   |   |--- mean_pct_remaining <= 98.30
+|   |   |   |   |--- class: 1
+|   |   |   |--- mean_pct_remaining >  98.30
+|   |   |   |   |--- class: 0
+|   |--- median_drain_pct_per_hr >  0.42
+|   |   |--- median_drain_pct_per_hr <= 18.99
+|   |   |   |--- min_rsoc <= 15.50
+|   |   |   |   |--- class: 0
+|   |   |   |--- min_rsoc >  15.50
+|   |   |   |   |--- class: 0
+|   |   |--- median_drain_pct_per_hr >  18.99
+|   |   |   |--- median_dod_pct <= 13.50
+|   |   |   |   |--- class: 1
+|   |   |   |--- median_dod_pct >  13.50
+|   |   |   |   |--- class: 0

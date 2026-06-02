@@ -1,0 +1,104 @@
+device_model,n_users,very_stale,hw_suspected,vs_rate_%
+ThinkPad X1 Carbon Gen 13,57,1,2,1.8
+ThinkPad T14s Gen 6,54,0,1,0.0
+ThinkPad X1 Carbon Gen 12,43,1,3,2.3
+ThinkPad X1 Carbon Gen 10,31,8,11,25.8
+ThinkPad X1 Carbon Gen 14,26,0,0,0.0
+ThinkPad X1 2-in-1 Gen 10,25,0,0,0.0
+ThinkPad X1 2-in-1 Gen 11,24,0,0,0.0
+ThinkPad X9-14 Gen 1,23,0,0,0.0
+ThinkPad X1 2-in-1 Gen 9,22,0,2,0.0
+ThinkPad X1 Carbon Gen 9,16,6,6,37.5
+ThinkPad X1 Yoga Gen 7,15,4,8,26.7
+ThinkPad P1 Gen 8,14,0,0,0.0
+ThinkPad P1 Gen 7,13,0,0,0.0
+ThinkPad T14 Gen 6,13,1,0,7.7
+ThinkPad X1 Yoga Gen 8,13,3,5,23.1
+ThinkPad T14 Gen 7,12,0,0,0.0
+ThinkPad P1 Gen 6,10,0,0,0.0
+ThinkPad T14 Gen 5,10,0,1,0.0
+ThinkPad T16 Gen 5,10,0,0,0.0
+ThinkPad X1 Carbon Gen 11,10,2,5,20.0
+ThinkPad T14s Gen 3,9,0,1,0.0
+ThinkPad T16 Gen 4,9,1,1,11.1
+ThinkPad L13 Gen 6,8,0,0,0.0
+ThinkPad L14 Gen 5,8,0,1,0.0
+ThinkPad L16 Gen 1,8,0,1,0.0
+ThinkPad T14 Gen 4,8,2,2,25.0
+ThinkPad X1 Yoga Gen 6,8,4,3,50.0
+ThinkPad P14s Gen 7 AMD,7,0,0,0.0
+ThinkPad P16 Gen 3,7,0,0,0.0
+ThinkPad T14s Gen 5,7,0,0,0.0
+ThinkPad T14s Gen 6 Qualcomm,7,0,0,0.0
+ThinkPad X13 2-in-1 Gen 5,7,0,0,0.0
+ThinkPad X13 Gen 4,7,1,2,14.3
+ThinkPad X13 Gen 6,7,0,0,0.0
+ThinkPad P14s Gen 6,6,0,0,0.0
+ThinkPad P16v Gen 1,6,0,0,0.0
+ThinkPad T14 Gen 1,6,2,1,33.3
+ThinkPad T14s 2-in-1 Gen 1,6,0,0,0.0
+ThinkPad T1g Gen 8,6,0,0,0.0
+ThinkPad X12 Detachable Gen 2,6,1,0,16.7
+ThinkPad Z13 Gen 2,6,0,0,0.0
+ThinkPad L16 Gen 2,5,0,0,0.0
+ThinkPad P1 Gen 9,5,0,0,0.0
+ThinkPad P14s Gen 5,5,0,0,0.0
+ThinkPad P16 Gen 2,5,1,1,20.0
+ThinkPad T14 Gen 2i,5,0,0,0.0
+ThinkPad T14s 2-in-1 Gen 2,5,0,0,0.0
+ThinkPad T14s Gen 4,5,0,0,0.0
+ThinkPad T16 Gen 2,5,1,0,20.0
+ThinkPad X1 Fold 16 Gen 1,5,0,0,0.0
+ThinkPad X13 Gen 5,5,1,1,20.0
+ThinkPad X9-15 Gen 1,5,1,2,20.0
+ThinkPad,4,1,0,25.0
+ThinkPad L13 2-in-1 Gen 5,4,2,1,50.0
+ThinkPad L13 2-in-1 Gen 6,4,0,0,0.0
+ThinkPad L14 Gen 6,4,0,0,0.0
+ThinkPad P16s Gen 3,4,0,0,0.0
+ThinkPad P16s Gen 5,4,0,0,0.0
+ThinkPad P16v Gen 3,4,0,0,0.0
+ThinkPad T14 Gen 3,4,3,3,75.0
+ThinkPad T14p Gen 2,4,0,0,0.0
+ThinkPad T14s Gen 2a,4,3,2,75.0
+ThinkPad T14s Gen 7,4,0,0,0.0
+ThinkPad X13 Gen 7,4,0,0,0.0
+ThinkPad Z16 Gen 2,4,0,0,0.0
+ThinkPad L13 Gen 5,3,1,1,33.3
+ThinkPad P14s Gen 5 AMD,3,0,0,0.0
+ThinkPad P14s Gen 7,3,0,0,0.0
+ThinkPad X13s Gen 1,3,0,0,0.0
+ThinkPad L13 Gen 4,2,0,0,0.0
+ThinkPad P16s Gen 4,2,0,0,0.0
+ThinkPad T14 Gen 2a,2,0,0,0.0
+ThinkPad T480s,2,0,0,0.0
+ThinkPad T490,2,0,0,0.0
+ThinkPad X1 Nano Gen 2,2,0,0,0.0
+ThinkPad X1 Nano Gen 3,2,0,0,0.0
+ThinkPad X13 Detachable Gen 1,2,0,0,0.0
+ThinkPad X280,2,0,0,0.0
+ThinkPad Aladdin,1,0,0,0.0
+ThinkPad E14 Gen 6,1,0,0,0.0
+ThinkPad E490,1,0,0,0.0
+ThinkPad L13 Yoga Gen 4,1,1,0,100.0
+ThinkPad P1 Gen 5,1,0,0,0.0
+ThinkPad P15v Gen 2i,1,0,0,0.0
+ThinkPad P16v Gen 2,1,0,0,0.0
+ThinkPad P51 W10DG,1,0,0,0.0
+ThinkPad P52,1,0,0,0.0
+ThinkPad R14 Gen 5,1,0,0,0.0
+ThinkPad T14p Gen 3,1,0,0,0.0
+ThinkPad T16 Gen 1,1,0,1,0.0
+ThinkPad T16g Gen 3,1,0,0,0.0
+ThinkPad X1 Carbon Gen 8,1,1,1,100.0
+ThinkPad X1 Extreme Gen 3,1,0,0,0.0
+ThinkPad X1 Extreme Gen 4i,1,0,0,0.0
+ThinkPad X1 Nano Gen 1,1,0,0,0.0
+ThinkPad X1 Yoga 3rd,1,0,0,0.0
+ThinkPad X1 Yoga 4th,1,0,0,0.0
+ThinkPad X1 Yoga Gen 5,1,1,0,100.0
+ThinkPad X13 Gen 2i,1,0,0,0.0
+ThinkPad X13 Gen 3,1,0,0,0.0
+ThinkPad X13 Yoga Gen 3,1,1,1,100.0
+ThinkPad X13 Yoga Gen 4,1,0,0,0.0
+ThinkPad Z16 Gen 1,1,0,0,0.0
