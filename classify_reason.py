@@ -49,6 +49,32 @@ CLASS_COLORS = {
     "active": "steelblue",
 }
 
+# Columns DELIBERATELY EXCLUDED from any learning / modeling feature set.
+# device_model / batt_vendor / manufacturer are HARDWARE IDENTITY -> descriptive & reporting
+# ONLY (user directive); never feed them to a model, tree, importance run or clustering. The
+# rest are outcome-leaky, downstream consequences, sampling controls, or identifiers.
+EXCLUDED_FROM_LEARNING = {
+    # hardware identity / hardware-size attribute — descriptive only
+    "device_model", "batt_vendor", "manufacturer", "design_capacity",
+    # outcome / leaky (the freeze itself)
+    "soh_update_status", "soh_reason_class", "fcc_distinct", "fcc_changes",
+    "fcc_change_rate_per_100d", "soh_flat_tail_days", "flat_pct_of_span", "stale_days",
+    "fcc_first", "fcc_last", "fcc_peak",
+    # downstream consequence of a frozen / healthy gauge
+    "soh_design_pct", "soh_peak_pct", "capacity_fade_pct",
+    "fade_pct_per_100_cycles", "fade_pct_per_year",
+    # sampling / observation-window controls
+    "n_samples", "median_sample_gap_min", "observation_days",
+    # identifiers / timestamps
+    "safe_id", "user_id", "display_id", "first_ts", "last_ts", "soh_last_change_ts",
+}
+
+
+def learning_features(df: pd.DataFrame) -> list:
+    """Numeric columns eligible as LEARNING features — excludes device_model, batt_vendor
+    and all leaky / consequence / control / identifier columns (see EXCLUDED_FROM_LEARNING)."""
+    return [c for c in df.select_dtypes("number").columns if c not in EXCLUDED_FROM_LEARNING]
+
 
 def classify_row(r) -> str:
     if r["soh_update_status"] == "active":
