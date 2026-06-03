@@ -1,0 +1,4 @@
+threshold_name,n_episodes,n_ok,n_large_gap,n_users_with_ok,ok_response_rate_72h,n_users_with_tail_opportunities,n_fw_check_if_used_as_primary,n_gauge_reset_if_used_as_no_opportunity_gate,analysis_timestamp
+strict_90_10_90,5750,829,4921,180,0.7739,15,4,29,2026-06-03T16:38:27
+primary_80_20_80,11342,2319,9023,294,0.692,37,16,17,2026-06-03T16:38:27
+secondary_85_15_85,7619,1249,6370,218,0.734,19,8,26,2026-06-03T16:38:27

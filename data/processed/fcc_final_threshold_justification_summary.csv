@@ -1,0 +1,12 @@
+threshold,value,rationale,analysis_timestamp
+candidate_fcc_changes_per_100_cycles,<= p05 = 4.2443,active-reference下位5%を下回る更新頻度,2026-06-03T16:38:27
+candidate_fcc_change_rate_per_100d,<= p05 = 1.4109,active-reference下位5%,2026-06-03T16:38:27
+flat_tail_days,60 / 120 / 180,既存 active/stale/very_stale 境界に一致,2026-06-03T16:38:27
+response_window,72h (primary),primary OK応答の 95% を72hで捕捉,2026-06-03T16:38:27
+learning_band_primary,80/20/80,ユーザー/episode数が最多、深い放電→再充電を実用的に捕捉,2026-06-03T16:38:27
+K_STRICT_90_10_90,2,strict無応答 k=2 の理論false-alarm proxy=0.0130 (<=5%),2026-06-03T16:38:27
+fw_unresponded_80_20_80,>=3,primary無応答 k=3 false-alarm proxy=0.0015 (<=5%),2026-06-03T16:38:27
+tail_cycle_delta,30 (FW high),active-ref更新間サイクルを大きく超える非更新,2026-06-03T16:38:27
+ac_time_ratio,>=0.80,AC固定で深放電機会が乏しい,2026-06-03T16:38:27
+shallow_range,min_rsoc>20 / swing<60,80/20/80のlow到達不能・60ptレンジ未満（定義的）,2026-06-03T16:38:27
+episode_max_gap_h,12,ロガー~30分間隔、>12hはスリープ欠測,2026-06-03T16:38:27

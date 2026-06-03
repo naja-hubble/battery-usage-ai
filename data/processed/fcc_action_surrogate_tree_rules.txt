@@ -1,0 +1,14 @@
+# surrogate fidelity=0.9242
+|--- obs_days <= 120.04
+|   |--- class: REVIEW_INSUFFICIENT_DATA
+|--- obs_days >  120.04
+|   |--- fcc_no_or_low_change_candidate <= 0.50
+|   |   |--- tail_ac_time_ratio <= 0.73
+|   |   |   |--- class: NORMAL_OR_RESPONDING
+|   |   |--- tail_ac_time_ratio >  0.73
+|   |   |   |--- class: NORMAL_OR_RESPONDING
+|   |--- fcc_no_or_low_change_candidate >  0.50
+|   |   |--- tail_n_unresponded_80_20_80_complete_window <= 1.50
+|   |   |   |--- class: WATCH_LOW_UPDATE_RATE_AMBIGUOUS
+|   |   |--- tail_n_unresponded_80_20_80_complete_window >  1.50
+|   |   |   |--- class: ACTIONABLE_FW_CHECK_OPPORTUNITY_NO_RESPONSE

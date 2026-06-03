@@ -1,0 +1,3 @@
+model,n_episodes,n_users,positive_rate,roc_auc,pr_auc,brier,analysis_timestamp
+logreg,4351,289,0.7168,0.8399,0.9052,0.1472,2026-06-03T16:38:27
+hgb,4351,289,0.7168,0.8992,0.9466,0.1013,2026-06-03T16:38:27

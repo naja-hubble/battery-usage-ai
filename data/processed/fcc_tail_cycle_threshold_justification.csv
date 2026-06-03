@@ -1,0 +1,5 @@
+metric,n,p50,p75,p90,p95,note,analysis_timestamp
+cycles_between_fcc_updates_active_reference,214,0.86,1.0,6.32,23.57,FW-high requires tail_cycle_delta >= 30 so a non-update spans well beyond the typical active-reference update gap.,2026-06-03T16:38:27
+candidate_tail_cycle_ge_20,96,0.5104,,,,share of no/low-change candidates with tail_cycle_delta >= 20,2026-06-03T16:38:27
+candidate_tail_cycle_ge_30,96,0.4375,,,,share of no/low-change candidates with tail_cycle_delta >= 30,2026-06-03T16:38:27
+candidate_tail_cycle_ge_50,96,0.3542,,,,share of no/low-change candidates with tail_cycle_delta >= 50,2026-06-03T16:38:27

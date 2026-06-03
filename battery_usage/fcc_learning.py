@@ -59,7 +59,9 @@ class FccLearningConfig:
     """All tunable thresholds for the audit layer (no magic numbers downstream)."""
 
     # ---- FCC change detection ----
-    fcc_change_min_mwh: float = 1.0      # |delta FCC| >= this counts as a step (int mWh)
+    fcc_change_min_mwh: float = 1.0      # |delta FCC| >= this (mWh) counts as a step
+    fcc_change_pct_design: float = 0.0   # if >0, per-user step threshold = design_mWh * this
+                                         # (effective-step sensitivity, spec 1.6); 0 = absolute
     # ---- episode quality ----
     episode_max_gap_h: float = 12.0      # max intra-episode sample gap for quality "ok"
     # ---- data-quality gates (per user) ----
@@ -178,25 +180,48 @@ def _changed_in_window(
     return bool(is_step[lo:hi].any())
 
 
+def _response_status(complete: bool, changed: Optional[bool]) -> str:
+    """Map (window completeness, observed change) -> responded / no_response / censored / unknown.
+
+    A KNOWN change is ``responded`` regardless of completeness (we already saw the
+    response). A non-change is ``no_response`` ONLY if the full window was observed; if the
+    window runs past last_ts it is ``censored`` (the unobserved tail might still respond).
+    Missing FCC -> ``unknown``. ``censored`` and ``unknown`` must NEVER be read as
+    no_response (spec section 1.2).
+    """
+    if changed is None:
+        return "unknown"
+    if changed:
+        return "responded"
+    return "no_response" if complete else "censored"
+
+
 def episode_fcc_response(
     ts_ns: np.ndarray, fcc: np.ndarray, is_step: np.ndarray,
-    start_idx: int, end_idx: int, windows_h: Tuple[int, ...] = RESPONSE_WINDOWS_H,
+    start_idx: int, end_idx: int, last_ts_ns: int,
+    windows_h: Tuple[int, ...] = RESPONSE_WINDOWS_H,
 ) -> Dict[str, object]:
     """FCC response of one episode: during the episode and within end+{24,72,168}h.
 
-    The look-ahead window always starts at the episode START (so a step occurring mid
-    episode counts), per spec section 6.
+    The look-ahead window starts at the episode START (so a mid-episode step counts) and
+    ends at episode_end + W. ``window_{w}h_complete`` records whether that window finished
+    on or before the user's last sample; if not, a non-response is ``censored`` rather than
+    ``no_response`` (spec sections 1.2 / 6).
     """
     start_ns = int(ts_ns[start_idx])
     end_ns = int(ts_ns[end_idx])
     out: Dict[str, object] = {
         "fcc_changed_during_episode": _changed_in_window(ts_ns, fcc, is_step, start_ns, end_ns),
     }
-    hour_ns = np.int64(3600 * 1_000_000_000)
+    hour_ns = int(3600 * 1_000_000_000)
     for w in windows_h:
-        win_end = end_ns + int(w) * int(hour_ns)
-        out[f"fcc_changed_{w}h"] = _changed_in_window(ts_ns, fcc, is_step, start_ns, win_end)
+        win_end = end_ns + int(w) * hour_ns
+        complete = win_end <= int(last_ts_ns)
+        changed = _changed_in_window(ts_ns, fcc, is_step, start_ns, win_end)
+        out[f"fcc_changed_{w}h"] = changed
         out[f"response_window_end_ts_{w}h"] = pd.Timestamp(win_end)
+        out[f"window_{w}h_complete"] = bool(complete)
+        out[f"fcc_response_status_{w}h"] = _response_status(complete, changed)
     return out
 
 
@@ -294,6 +319,22 @@ def _quality_label(q: Dict[str, object], cfg: FccLearningConfig) -> str:
     return "QUALITY_OK"
 
 
+def _user_min_mwh(g: pd.DataFrame, cfg: FccLearningConfig) -> float:
+    """Per-user FCC step threshold (mWh). Absolute by default; if ``fcc_change_pct_design``
+    is set, scale by the user's design capacity (recovered from FCC and soh_design_pct)."""
+    if cfg.fcc_change_pct_design <= 0:
+        return cfg.fcc_change_min_mwh
+    if "soh_design_pct" not in g:
+        return cfg.fcc_change_min_mwh
+    soh = g["soh_design_pct"].to_numpy(dtype=float)
+    fcc = g["fullChargeCapacity"].to_numpy(dtype=float)
+    m = (soh > 0) & np.isfinite(soh) & np.isfinite(fcc)
+    if not m.any():
+        return cfg.fcc_change_min_mwh
+    design = float(np.nanmedian(fcc[m] * 100.0 / soh[m]))
+    return max(1.0, design * cfg.fcc_change_pct_design) if np.isfinite(design) else cfg.fcc_change_min_mwh
+
+
 def _fcc_features(g: pd.DataFrame, obs_days: float, cfg: FccLearningConfig) -> Dict[str, object]:
     """FCC-freeze features + the trailing flat-tail anchor (last_fcc_change_ts)."""
     fcc = g["fullChargeCapacity"].to_numpy(dtype=float)
@@ -301,11 +342,12 @@ def _fcc_features(g: pd.DataFrame, obs_days: float, cfg: FccLearningConfig) -> D
     cyc = g["cycleCount"].to_numpy(dtype=float)
     soh = g["soh_design_pct"].to_numpy(dtype=float) if "soh_design_pct" in g else None
 
-    is_step, _ = fcc_step_indicator(fcc, cfg.fcc_change_min_mwh)
+    min_mwh = _user_min_mwh(g, cfg)
+    is_step, _ = fcc_step_indicator(fcc, min_mwh)
     delta = np.diff(fcc)
     valid = ~(np.isnan(fcc[1:]) | np.isnan(fcc[:-1]))
-    pos = int(((delta >= cfg.fcc_change_min_mwh) & valid).sum())
-    neg = int(((delta <= -cfg.fcc_change_min_mwh) & valid).sum())
+    pos = int(((delta >= min_mwh) & valid).sum())
+    neg = int(((delta <= -min_mwh) & valid).sum())
     n_changes = int(is_step.sum())
 
     # Last FCC change anchors the flat tail. If FCC never changed, the *entire*
@@ -337,6 +379,10 @@ def _fcc_features(g: pd.DataFrame, obs_days: float, cfg: FccLearningConfig) -> D
         "cycle_delta": round(cyc_delta, 1),
         "cycles_per_year": round(cyc_delta / years, 2) if years else float("nan"),
         "fcc_changes_per_100_cycles": round(n_changes / max(cyc_delta, 1e-9) * 100, 3),
+        # Effective-step counts (spec 1.6): many FCC steps are tiny (~58% < 50 mWh), so an
+        # |delta|>=50/100 mWh view of "real" updates is reported alongside any-change.
+        "fcc_effective_changes_50mwh": int(fcc_step_indicator(fcc, 50.0)[0].sum()),
+        "fcc_effective_changes_100mwh": int(fcc_step_indicator(fcc, 100.0)[0].sum()),
     }
     if soh is not None and np.isfinite(soh).any():
         soh_end = float(soh[~np.isnan(soh)][-1])
@@ -365,12 +411,13 @@ def extract_user_episodes(
     cyc = g["cycleCount"].to_numpy(dtype=float)
     ts = g["timestamp"]
     ts_ns = ts.to_numpy().astype("datetime64[ns]").astype(np.int64)
-    is_step, _ = fcc_step_indicator(fcc, cfg.fcc_change_min_mwh)
+    last_ts_ns = int(ts_ns[-1])
+    is_step, _ = fcc_step_indicator(fcc, _user_min_mwh(g, cfg))
 
     rows: List[Dict[str, object]] = []
     for name, (high, low) in EPISODE_THRESHOLDS.items():
         for (s, lo, e) in extract_high_low_high_episodes(rsoc, high, low):
-            resp = episode_fcc_response(ts_ns, fcc, is_step, s, e)
+            resp = episode_fcc_response(ts_ns, fcc, is_step, s, e, last_ts_ns)
             win_end_ns = int(ts_ns[e]) + max(RESPONSE_WINDOWS_H) * 3600 * 1_000_000_000
             qual, max_gap = episode_quality(ts_ns, fcc, rsoc, s, lo, e, win_end_ns, cfg)
             row: Dict[str, object] = {
@@ -384,6 +431,15 @@ def extract_user_episodes(
                 "max_gap_h_in_episode": round(max_gap, 3) if pd.notna(max_gap) else float("nan"),
                 "episode_quality": qual,
             }
+            # Delay (h) from episode END to the first FCC step strictly AFTER episode start
+            # (the responded change). Used for the response-delay CDF (spec 2.3). NaN if no
+            # step ever follows within the observation.
+            post = np.flatnonzero(is_step[s + 1:])
+            if post.size:
+                fs = s + 1 + int(post[0])
+                row["response_delay_h"] = round(float((ts_ns[fs] - ts_ns[e]) / 3.6e12), 3)
+            else:
+                row["response_delay_h"] = float("nan")
             row.update(resp)
             rows.append(row)
     return rows
@@ -434,21 +490,38 @@ def _tail_features(
                   "tail_full_time_ratio", "tail_below20_time_ratio"):
             out[k] = float("nan")
 
-    # Episode counts & response rates, tail-scoped and total-scoped. Response rates are
-    # computed at every look-ahead window so the sensitivity analysis can swap which
-    # window defines "no response".
+    # Episode counts & response rates, tail-scoped and total-scoped. ok / large_gap / any
+    # are reported separately (spec 1.3) so a GAUGE "no opportunity" gate can require zero
+    # large-gap opportunities too (else a gappy full-range discharge is wrongly ignored).
+    # Response rates are computed at every look-ahead window for the window sensitivity.
     for name in EPISODE_THRESHOLDS:
         s = _short(name)
         eps = [e for e in episodes if e["threshold_name"] == name]
         tail_eps = [e for e in eps if e["start_ts"] >= last_fcc_change_ts]
         tail_ok = [e for e in tail_eps if e["episode_quality"] == "ok"]
+        tail_lg = [e for e in tail_eps if e["episode_quality"] == "large_gap"]
         total_ok = [e for e in eps if e["episode_quality"] == "ok"]
+        total_lg = [e for e in eps if e["episode_quality"] == "large_gap"]
         out[f"tail_n_{s}_ok"] = len(tail_ok)
-        out[f"tail_n_{s}_any_quality"] = len(tail_eps)
+        out[f"tail_n_{s}_large_gap"] = len(tail_lg)
+        out[f"tail_n_{s}_any"] = len(tail_eps)
+        out[f"tail_n_{s}_any_quality"] = len(tail_eps)   # backward-compat alias
         out[f"total_n_{s}_ok"] = len(total_ok)
+        out[f"total_n_{s}_large_gap"] = len(total_lg)
+        out[f"total_n_{s}_any"] = len(eps)
+        # Right-censoring aware tail counts (spec 1.4) at every window: unresponded == OK +
+        # complete window + observed no FCC change; censored == OK but the window ran past
+        # last_ts. Computed per window so the response-window sensitivity can swap horizons.
         for w in RESPONSE_WINDOWS_H:
+            out[f"tail_n_unresponded_{s}_complete_window_{w}h"] = sum(
+                1 for e in tail_ok if e[f"fcc_response_status_{w}h"] == "no_response")
+            out[f"tail_n_censored_{s}_{w}h"] = sum(
+                1 for e in tail_ok if e[f"fcc_response_status_{w}h"] == "censored")
             out[f"tail_response_rate_{s}_{w}h"] = _response_rate(tail_ok, f"fcc_changed_{w}h")
             out[f"total_response_rate_{s}_{w}h"] = _response_rate(total_ok, f"fcc_changed_{w}h")
+        # Canonical 72h aliases (the spec-named columns used by the default classifier/CSV).
+        out[f"tail_n_unresponded_{s}_complete_window"] = out[f"tail_n_unresponded_{s}_complete_window_72h"]
+        out[f"tail_n_censored_{s}"] = out[f"tail_n_censored_{s}_72h"]
 
     # "Relevant" response rate for the medium FW rule: prefer the primary band, fall
     # back to the strict band when the primary has no judgeable tail episodes.

@@ -1,0 +1,4 @@
+dimension,variant,n_candidates,n_review,n_normal,n_fw_check,n_gauge_reset,n_watch,n_ok_episodes,n_users_with_ok,ok_response_rate_72h,analysis_timestamp
+episode_max_gap_h,6,,338,327,6,18,63,1620.0,196.0,0.7141,2026-06-03T16:38:27
+episode_max_gap_h,12,,338,327,14,18,55,4397.0,294.0,0.7194,2026-06-03T16:38:27
+episode_max_gap_h,24,,338,327,20,18,49,9823.0,390.0,0.7184,2026-06-03T16:38:27

@@ -1,0 +1,4 @@
+perturbation,jaccard_fw,jaccard_gauge,analysis_timestamp
+response_window=24h,1.0,1.0,2026-06-03T16:38:27
+response_window=72h,1.0,1.0,2026-06-03T16:38:27
+response_window=168h,1.0,1.0,2026-06-03T16:38:27

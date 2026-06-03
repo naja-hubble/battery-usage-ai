@@ -1,0 +1,6 @@
+step_definition,median_fcc_changes,median_fcc_changes_per_100_cycles,median_fcc_change_rate_per_100d,median_flat_tail_days,n_candidates,n_review,n_normal,n_fw_check,n_gauge_reset,n_watch,analysis_timestamp
+any_change,16.0,101.246,13.966,5.1,96,338,327,14,18,55,2026-06-03T16:38:27
+abs_ge_50mWh,4.0,14.286,1.985,29.2,146,338,278,15,39,82,2026-06-03T16:38:27
+abs_ge_100mWh,3.0,12.987,1.807,31.9,150,338,274,15,42,83,2026-06-03T16:38:27
+abs_ge_0p1pct_design,3.0,13.383,1.845,30.5,150,338,274,15,42,83,2026-06-03T16:38:27
+abs_ge_0p5pct_design,3.0,11.494,1.613,34.0,160,338,265,17,43,89,2026-06-03T16:38:27

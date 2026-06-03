@@ -1,0 +1,4 @@
+dimension,variant,n_candidates,n_review,n_normal,n_fw_check,n_gauge_reset,n_watch,n_ok_episodes,n_users_with_ok,ok_response_rate_72h,analysis_timestamp
+response_window,24h,96.0,338,327,14,18,55,,,,2026-06-03T16:38:27
+response_window,72h,96.0,338,327,14,18,55,,,,2026-06-03T16:38:27
+response_window,168h,96.0,338,327,14,18,55,,,,2026-06-03T16:38:27

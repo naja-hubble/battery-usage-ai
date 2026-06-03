@@ -1,0 +1,6 @@
+band,k,n_users,n_episodes,response_rate_p,p_no_response_theory,p_no_response_bootstrap,boot_ci_lo,boot_ci_hi,false_alarm_proxy_le_5pct,analysis_timestamp
+primary_80_20_80,1,248,1728,0.886,0.114,0.1148,0.0673,0.173,False,2026-06-03T16:38:27
+primary_80_20_80,2,248,1728,0.886,0.013,0.0135,0.0043,0.0293,True,2026-06-03T16:38:27
+primary_80_20_80,3,248,1728,0.886,0.0015,0.0018,0.0,0.006,True,2026-06-03T16:38:27
+primary_80_20_80,4,248,1728,0.886,0.0002,0.0002,0.0,0.0013,True,2026-06-03T16:38:27
+primary_80_20_80,5,248,1728,0.886,0.0,0.0,0.0,0.0007,True,2026-06-03T16:38:27
