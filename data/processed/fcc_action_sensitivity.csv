@@ -1,0 +1,16 @@
+dimension,variant,n_candidates,n_review,n_normal,n_gauge_reset,n_fw_check,n_watch,analysis_timestamp
+candidate_pct,p05,96,338,327,43,20,24,2026-06-03T12:47:30
+candidate_pct,p10,126,338,299,51,20,44,2026-06-03T12:47:30
+response_window,24h,96,338,327,43,20,24,2026-06-03T12:47:30
+response_window,72h,96,338,327,43,20,24,2026-06-03T12:47:30
+response_window,168h,96,338,327,43,20,24,2026-06-03T12:47:30
+flat_tail_days[fw_hi&gauge_hi],60,96,338,327,43,21,23,2026-06-03T12:47:30
+flat_tail_days[fw_hi&gauge_hi],120,96,338,327,43,20,24,2026-06-03T12:47:30
+flat_tail_days[fw_hi&gauge_hi],180,96,338,327,43,20,24,2026-06-03T12:47:30
+tail_cycle_delta[fw_hi&fw_med],20,96,338,327,43,20,24,2026-06-03T12:47:30
+tail_cycle_delta[fw_hi&fw_med],30,96,338,327,43,20,24,2026-06-03T12:47:30
+tail_cycle_delta[fw_hi&fw_med],50,96,338,327,44,16,27,2026-06-03T12:47:30
+tail_n_80_20_80_ok[fw_hi],1,96,338,327,43,20,24,2026-06-03T12:47:30
+tail_n_80_20_80_ok[fw_hi],2,96,338,327,43,20,24,2026-06-03T12:47:30
+tail_n_80_20_80_ok[fw_hi],3,96,338,327,43,20,24,2026-06-03T12:47:30
+tail_n_80_20_80_ok[fw_hi],5,96,338,327,43,20,24,2026-06-03T12:47:30
