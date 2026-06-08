@@ -1,0 +1,9 @@
+score_col,proxy_label,N,hits,precision_at_N,recall_at_N,total_proxy_pos,analysis_timestamp,code_version,window_days,stride_days,effective_step_definition
+cum_fw_response_anomaly_score,ACTIONABLE_FW_CHECK_OPPORTUNITY_NO_RESPONSE,10,0,0.0,0.0,0,2026-06-08T06:25:06Z,rolling30-v1.0,30,7,abs_ge_50mWh
+cum_fw_response_anomaly_score,ACTIONABLE_FW_CHECK_OPPORTUNITY_NO_RESPONSE,20,0,0.0,0.0,0,2026-06-08T06:25:06Z,rolling30-v1.0,30,7,abs_ge_50mWh
+cum_fw_response_anomaly_score,ACTIONABLE_FW_CHECK_OPPORTUNITY_NO_RESPONSE,30,0,0.0,0.0,0,2026-06-08T06:25:06Z,rolling30-v1.0,30,7,abs_ge_50mWh
+cum_fw_response_anomaly_score,ACTIONABLE_FW_CHECK_OPPORTUNITY_NO_RESPONSE,50,0,0.0,0.0,0,2026-06-08T06:25:06Z,rolling30-v1.0,30,7,abs_ge_50mWh
+days_since_last_effective_fcc_change,ACTIONABLE_GAUGE_RESET_INSUFFICIENT_LEARNING_OPPORTUNITY,10,2,0.2,0.6667,3,2026-06-08T06:25:06Z,rolling30-v1.0,30,7,abs_ge_50mWh
+days_since_last_effective_fcc_change,ACTIONABLE_GAUGE_RESET_INSUFFICIENT_LEARNING_OPPORTUNITY,20,3,0.15,1.0,3,2026-06-08T06:25:06Z,rolling30-v1.0,30,7,abs_ge_50mWh
+days_since_last_effective_fcc_change,ACTIONABLE_GAUGE_RESET_INSUFFICIENT_LEARNING_OPPORTUNITY,30,3,0.1,1.0,3,2026-06-08T06:25:06Z,rolling30-v1.0,30,7,abs_ge_50mWh
+days_since_last_effective_fcc_change,ACTIONABLE_GAUGE_RESET_INSUFFICIENT_LEARNING_OPPORTUNITY,50,3,0.06,1.0,3,2026-06-08T06:25:06Z,rolling30-v1.0,30,7,abs_ge_50mWh

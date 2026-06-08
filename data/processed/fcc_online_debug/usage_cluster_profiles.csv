@@ -1,0 +1,8 @@
+cluster_id,n_windows,n_users,median_cycle_delta,median_ac_time_ratio,median_rsoc_swing,median_rsoc_min,median_n_80_20_80_ok,median_n_80_20_80_large_gap,median_fcc_effective_changes,share_response_windows,share_no_response,share_large_gap,cluster_profile_name,suggested_action_hint,analysis_timestamp,code_version,window_days,stride_days,effective_step_definition
+0,197,10,21.0,0.4471,97.0,3.0,1.0,4.0,0.0,0.3452,0.922360248447205,0.7099,MOBILE_DEEP_CYCLE_NO_RESPONSE,fw_check_hint,2026-06-08T06:25:06Z,rolling30-v1.0,30,7,abs_ge_50mWh
+1,228,6,4.5,0.7971,73.0,7.0,0.0,1.0,0.0,0.9693,1.0,0.9725,LARGE_GAP_AMBIGUOUS,watch_hint,2026-06-08T06:25:06Z,rolling30-v1.0,30,7,abs_ge_50mWh
+2,398,33,6.0,0.7092,94.0,6.0,0.0,1.0,1.0,0.9749,1.0,0.9848,LARGE_GAP_AMBIGUOUS,watch_hint,2026-06-08T06:25:06Z,rolling30-v1.0,30,7,abs_ge_50mWh
+3,70,2,13.5,0.7224,93.0,3.0,0.0,2.0,17.0,1.0,0.0,0.9349,LARGE_GAP_AMBIGUOUS,watch_hint,2026-06-08T06:25:06Z,rolling30-v1.0,30,7,abs_ge_50mWh
+4,8,1,17.0,0.6448,85.0,0.0,1.0,3.5,28.0,1.0,0.0,0.7778,MOBILE_DEEP_CYCLE_RESPONDING,normal_hint,2026-06-08T06:25:06Z,rolling30-v1.0,30,7,abs_ge_50mWh
+5,183,14,17.0,0.4074,98.0,2.0,2.0,6.0,5.0,0.3825,0.4362934362934363,0.6781,MOBILE_DEEP_CYCLE_RESPONDING,normal_hint,2026-06-08T06:25:06Z,rolling30-v1.0,30,7,abs_ge_50mWh
+6,382,24,4.0,0.8846,54.0,46.0,0.0,0.0,0.0,1.0,,0.0,AC_BOUND,gauge_reset_hint,2026-06-08T06:25:06Z,rolling30-v1.0,30,7,abs_ge_50mWh

@@ -1,0 +1,4 @@
+episode_max_gap_hours,n_ok,n_large_gap,ok_fraction,analysis_timestamp,code_version,window_days,stride_days,effective_step_definition
+6.0,74,899,0.0761,2026-06-08T06:25:06Z,rolling30-v1.0,30,7,abs_ge_50mWh
+12.0,241,732,0.2477,2026-06-08T06:25:06Z,rolling30-v1.0,30,7,abs_ge_50mWh
+24.0,479,494,0.4923,2026-06-08T06:25:06Z,rolling30-v1.0,30,7,abs_ge_50mWh

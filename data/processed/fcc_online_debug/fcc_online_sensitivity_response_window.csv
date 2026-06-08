@@ -1,0 +1,4 @@
+response_window_hours,n_responded,n_no_response,n_censored,response_rate_complete,analysis_timestamp,code_version,window_days,stride_days,effective_step_definition
+24,51,189,1,0.2125,2026-06-08T06:25:06Z,rolling30-v1.0,30,7,abs_ge_50mWh
+72,91,148,2,0.3808,2026-06-08T06:25:06Z,rolling30-v1.0,30,7,abs_ge_50mWh
+168,143,96,2,0.5983,2026-06-08T06:25:06Z,rolling30-v1.0,30,7,abs_ge_50mWh

@@ -1,0 +1,6 @@
+effective_step,n_ok_complete_primary,n_responded,n_no_response,n_censored,response_rate,analysis_timestamp,code_version,window_days,stride_days,effective_step_definition
+any_change,240,144,96,1,0.6,2026-06-08T06:25:06Z,rolling30-v1.0,30,7,abs_ge_50mWh
+abs_ge_50mWh,239,91,148,2,0.3808,2026-06-08T06:25:06Z,rolling30-v1.0,30,7,abs_ge_50mWh
+abs_ge_100mWh,239,88,151,2,0.3682,2026-06-08T06:25:06Z,rolling30-v1.0,30,7,abs_ge_50mWh
+abs_ge_0p1pct_design,239,91,148,2,0.3808,2026-06-08T06:25:06Z,rolling30-v1.0,30,7,abs_ge_50mWh
+abs_ge_0p5pct_design,239,80,159,2,0.3347,2026-06-08T06:25:06Z,rolling30-v1.0,30,7,abs_ge_50mWh

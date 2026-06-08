@@ -1,0 +1,6 @@
+group_axis,group_value,n_total,n_candidate,raw_rate,shrunk_rate,ci_low,ci_high,fisher_p,q_value,fleet_rate,analysis_timestamp,code_version,window_days,stride_days,effective_step_definition
+batt_vendor,BYD,5,0,0.0,0.0001,0.0,0.0,1.0,1.0,0.0,2026-06-08T06:25:06Z,rolling30-v1.0,30,7,abs_ge_50mWh
+batt_vendor,Celxpert,6,0,0.0,0.0001,0.0,0.0,1.0,1.0,0.0,2026-06-08T06:25:06Z,rolling30-v1.0,30,7,abs_ge_50mWh
+batt_vendor,SMP,11,0,0.0,0.0001,0.0,0.0,1.0,1.0,0.0,2026-06-08T06:25:06Z,rolling30-v1.0,30,7,abs_ge_50mWh
+batt_vendor,Sunwoda,11,0,0.0,0.0001,0.0,0.0,1.0,1.0,0.0,2026-06-08T06:25:06Z,rolling30-v1.0,30,7,abs_ge_50mWh
+device_model,ThinkPad X9-14 Gen 1,5,0,0.0,0.0001,0.0,0.0,1.0,1.0,0.0,2026-06-08T06:25:06Z,rolling30-v1.0,30,7,abs_ge_50mWh

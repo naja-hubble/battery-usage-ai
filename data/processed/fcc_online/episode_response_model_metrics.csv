@@ -1,0 +1,4 @@
+model,n_episodes,n_users,positive_rate,roc_auc,pr_auc,brier,brier_calibrated,calib_slope,tp@0.5,fp@0.5,tn@0.5,fn@0.5,tp@0.7,fp@0.7,tn@0.7,fn@0.7,tp@0.9,fp@0.9,tn@0.9,fn@0.9,analysis_timestamp,code_version,window_days,stride_days,effective_step_definition
+logreg,4360,290,0.3943,0.7891,0.7234,0.1843,0.1757,0.828,1141,698,1943,578,645,164,2477,1074,393,37,2604,1326,2026-06-08T06:25:28Z,rolling30-v1.0,30,1,abs_ge_50mWh
+hgb,4360,290,0.3943,0.8028,0.7324,0.1772,0.1705,0.774,925,463,2178,794,591,149,2492,1128,317,25,2616,1402,2026-06-08T06:25:28Z,rolling30-v1.0,30,1,abs_ge_50mWh
+lightgbm,4360,290,0.3943,0.8018,0.7317,0.1755,0.1698,0.838,913,456,2185,806,564,121,2520,1155,299,20,2621,1420,2026-06-08T06:25:28Z,rolling30-v1.0,30,1,abs_ge_50mWh

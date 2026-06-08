@@ -1,0 +1,7 @@
+cluster_id,n_windows,n_users,median_cycle_delta,median_ac_time_ratio,median_rsoc_swing,median_rsoc_min,median_n_80_20_80_ok,median_n_80_20_80_large_gap,median_fcc_effective_changes,share_response_windows,share_no_response,share_large_gap,cluster_profile_name,suggested_action_hint,analysis_timestamp,code_version,window_days,stride_days,effective_step_definition
+0,60836,541,7.0,0.7365,90.0,10.0,0.0,1.0,1.0,1.0,,1.0,LARGE_GAP_AMBIGUOUS,watch_hint,2026-06-08T06:25:28Z,rolling30-v1.0,30,1,abs_ge_50mWh
+1,49596,546,3.0,0.8651,52.0,48.0,0.0,0.0,0.0,1.0,,0.0,AC_BOUND,gauge_reset_hint,2026-06-08T06:25:28Z,rolling30-v1.0,30,1,abs_ge_50mWh
+2,28302,287,14.0,0.5747,97.0,3.0,1.0,4.0,3.0,0.3466,0.6178073894609327,0.6633,MOBILE_DEEP_CYCLE_NO_RESPONSE,fw_check_hint,2026-06-08T06:25:28Z,rolling30-v1.0,30,1,abs_ge_50mWh
+3,9817,70,3.0,0.8081,54.0,29.0,0.0,0.0,0.0,1.0,,1.0,AC_BOUND,gauge_reset_hint,2026-06-08T06:25:28Z,rolling30-v1.0,30,1,abs_ge_50mWh
+4,15426,524,5.0,0.6128,94.0,6.0,0.0,1.0,1.0,1.0,,1.0,LARGE_GAP_AMBIGUOUS,watch_hint,2026-06-08T06:25:28Z,rolling30-v1.0,30,1,abs_ge_50mWh
+5,3051,97,10.0,0.7096,85.0,6.0,0.0,2.0,3.0,0.7657,0.6486796785304249,0.8015,LARGE_GAP_AMBIGUOUS,watch_hint,2026-06-08T06:25:28Z,rolling30-v1.0,30,1,abs_ge_50mWh
