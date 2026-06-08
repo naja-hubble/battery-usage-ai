@@ -1,0 +1,13 @@
+response_window_h,gap_rule,n_opportunities,n_responded,n_no_response,n_censored,response_rate_complete,analysis_timestamp,code_version,window_days,stride_days,effective_step_definition
+24,6h,895,220,673,2,0.2464,2026-06-08T10:02:59Z,rolling30-v2.0,30,1,abs_ge_50mWh
+24,12h,2319,574,1734,11,0.2487,2026-06-08T10:02:59Z,rolling30-v2.0,30,1,abs_ge_50mWh
+24,24h,5050,1299,3727,24,0.2585,2026-06-08T10:02:59Z,rolling30-v2.0,30,1,abs_ge_50mWh
+24,graded,4918,1261,3633,24,0.2577,2026-06-08T10:02:59Z,rolling30-v2.0,30,1,abs_ge_50mWh
+72,6h,895,351,540,4,0.3939,2026-06-08T10:02:59Z,rolling30-v2.0,30,1,abs_ge_50mWh
+72,12h,2319,901,1402,16,0.3912,2026-06-08T10:02:59Z,rolling30-v2.0,30,1,abs_ge_50mWh
+72,24h,5050,1978,3035,37,0.3946,2026-06-08T10:02:59Z,rolling30-v2.0,30,1,abs_ge_50mWh
+72,graded,4918,1917,2964,37,0.3927,2026-06-08T10:02:59Z,rolling30-v2.0,30,1,abs_ge_50mWh
+168,6h,895,519,370,6,0.5838,2026-06-08T10:02:59Z,rolling30-v2.0,30,1,abs_ge_50mWh
+168,12h,2319,1338,959,22,0.5825,2026-06-08T10:02:59Z,rolling30-v2.0,30,1,abs_ge_50mWh
+168,24h,5050,2855,2141,54,0.5715,2026-06-08T10:02:59Z,rolling30-v2.0,30,1,abs_ge_50mWh
+168,graded,4918,2773,2092,53,0.57,2026-06-08T10:02:59Z,rolling30-v2.0,30,1,abs_ge_50mWh

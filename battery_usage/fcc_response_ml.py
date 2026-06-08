@@ -134,14 +134,17 @@ def _assert_no_leakage(columns) -> None:
     assert not bad, f"forbidden feature(s) leaked into the response model: {bad}"
 
 
-def _build_xy(eps_feat: pd.DataFrame, response_col: str
+def _build_xy(eps_feat: pd.DataFrame, response_col: str,
+              features: Optional[List[str]] = None, quality_col: str = "episode_quality",
+              ok_values: Tuple[str, ...] = ("ok",),
               ) -> Tuple[pd.DataFrame, np.ndarray, np.ndarray, List[str], List[str]]:
-    train = eps_feat[(eps_feat["episode_quality"] == "ok")
+    feature_list = EPISODE_TIME_FEATURES if features is None else features
+    train = eps_feat[(eps_feat[quality_col].isin(ok_values))
                      & (eps_feat[response_col].isin(["responded", "no_response"]))].copy()
     y = (train[response_col] == "responded").astype(int).to_numpy()
     band = pd.get_dummies(train["threshold_name"], prefix="band")
     band_cols = list(band.columns)
-    feats = [c for c in EPISODE_TIME_FEATURES if c in train.columns]
+    feats = [c for c in feature_list if c in train.columns]
     X = pd.concat([train[feats].reset_index(drop=True),
                    band.reset_index(drop=True)], axis=1).astype(float)
     _assert_no_leakage(X.columns)
@@ -151,12 +154,15 @@ def _build_xy(eps_feat: pd.DataFrame, response_col: str
 
 def train_response_model(
     eps_feat: pd.DataFrame, response_col: str = "response_status_72h",
+    features: Optional[List[str]] = None, quality_col: str = "episode_quality",
+    ok_values: Tuple[str, ...] = ("ok",), random_state: Optional[int] = None,
 ) -> Tuple[Dict[str, object], ResponseModelBundle]:
-    """Train P(response) on complete-window OK episodes, grouped by user.
+    """Train P(response) on complete-window OK opportunities, grouped by user.
 
-    Returns (results dict, bundle). ``results`` has metrics, OOF predictions (calibrated),
-    coefficients/importances and calibration curves; ``bundle`` carries the refit model +
-    calibrator for scoring ALL OK episodes (incl. censored) operationally.
+    ``features`` overrides the default ``EPISODE_TIME_FEATURES`` (the normative head passes a
+    history-free subset). ``quality_col``/``ok_values`` select the opportunity population
+    (v2 passes ``quality_tier`` in {HIGH_OK, MEDIUM_GAP}). ``random_state`` seeds the boosted
+    estimators for reproducibility. Returns (results dict, bundle).
     """
     from sklearn.linear_model import LogisticRegression
     from sklearn.preprocessing import StandardScaler
@@ -168,7 +174,8 @@ def train_response_model(
     from sklearn.isotonic import IsotonicRegression
     from sklearn.ensemble import HistGradientBoostingClassifier
 
-    X, y, groups, feats, band_cols = _build_xy(eps_feat, response_col)
+    X, y, groups, feats, band_cols = _build_xy(eps_feat, response_col, features,
+                                               quality_col, ok_values)
     n_users = int(pd.Series(groups).nunique())
     result: Dict[str, object] = {"n_episodes": int(len(y)), "n_users": n_users,
                                  "positive_rate": round(float(y.mean()), 4) if len(y) else float("nan"),
@@ -187,12 +194,14 @@ def train_response_model(
     candidates: Dict[str, object] = {
         "logreg": Pipeline([("imp", SimpleImputer(strategy="median")),
                             ("sc", StandardScaler()),
-                            ("lr", LogisticRegression(max_iter=3000, class_weight="balanced"))]),
+                            ("lr", LogisticRegression(max_iter=3000, class_weight="balanced",
+                                                      random_state=random_state))]),
         "hgb": HistGradientBoostingClassifier(max_depth=3, max_iter=300,
-                                              learning_rate=0.07, l2_regularization=1.0),
+                                              learning_rate=0.07, l2_regularization=1.0,
+                                              random_state=random_state),
     }
     for opt, ctor in (("lightgbm", _try_lightgbm), ("xgboost", _try_xgboost)):
-        m = ctor()
+        m = ctor(random_state)
         if m is not None:
             candidates[opt] = m
 
@@ -238,7 +247,7 @@ def train_response_model(
     # OOF predictions for the chosen model, calibrated
     from sklearn.isotonic import IsotonicRegression as _Iso
     iso_best = _Iso(out_of_bounds="clip").fit(oof[best], y)
-    train = eps_feat[(eps_feat["episode_quality"] == "ok")
+    train = eps_feat[(eps_feat[quality_col].isin(ok_values))
                      & (eps_feat[response_col].isin(["responded", "no_response"]))].copy()
     preds = train[["episode_id", "user_id", "threshold_name", "start_ts", "end_ts",
                    response_col]].reset_index(drop=True)
@@ -261,13 +270,16 @@ def train_response_model(
     return result, bundle
 
 
-def predict_all_ok(bundle: ResponseModelBundle, eps_feat: pd.DataFrame) -> pd.DataFrame:
-    """Operational per-episode p_response for ALL OK episodes (complete OR censored).
+def predict_all_ok(bundle: ResponseModelBundle, eps_feat: pd.DataFrame,
+                   quality_col: str = "episode_quality",
+                   ok_values: Tuple[str, ...] = ("ok",)) -> pd.DataFrame:
+    """Operational per-episode p_response for ALL OK opportunities (complete OR censored).
 
     Used by the anomaly layer / online state; censored episodes still get a probability so
     the cumulative expected-response can include opportunities still inside their window.
+    v2 passes ``quality_col='quality_tier'`` and ``ok_values=('HIGH_OK','MEDIUM_GAP')``.
     """
-    ok = eps_feat[eps_feat["episode_quality"] == "ok"].copy()
+    ok = eps_feat[eps_feat[quality_col].isin(ok_values)].copy()
     if ok.empty:
         ok["p_response"] = []
         return ok[["episode_id", "p_response"]]
@@ -352,19 +364,20 @@ def _importances(model, columns: List[str], X=None, y=None, groups=None) -> pd.D
                          "kind": "unavailable"})
 
 
-def _try_lightgbm():
+def _try_lightgbm(random_state: Optional[int] = None):
     try:
         from lightgbm import LGBMClassifier
         return LGBMClassifier(n_estimators=300, max_depth=3, learning_rate=0.05,
-                              num_leaves=15, verbose=-1)
+                              num_leaves=15, verbose=-1, random_state=random_state)
     except Exception:
         return None
 
 
-def _try_xgboost():
+def _try_xgboost(random_state: Optional[int] = None):
     try:
         from xgboost import XGBClassifier
         return XGBClassifier(n_estimators=300, max_depth=3, learning_rate=0.05,
-                             eval_metric="logloss", verbosity=0, use_label_encoder=False)
+                             eval_metric="logloss", verbosity=0, use_label_encoder=False,
+                             random_state=random_state)
     except Exception:
         return None

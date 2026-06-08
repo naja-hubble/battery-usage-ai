@@ -1,0 +1,8 @@
+cluster_id,n_windows,n_users,median_cycle_delta,median_ac_time_ratio,median_rsoc_swing,median_rsoc_min,median_rsoc_max,median_n_discharge_sessions,median_p95_gap_h,median_n_samples,cluster_profile_name,analysis_timestamp,code_version,window_days,stride_days,effective_step_definition
+0,6265,400,5.0,0.4392,96.0,4.0,100.0,16.0,8.71,170.0,MOBILE_DEEP_CYCLE,2026-06-08T10:02:59Z,rolling30-v2.0,30,1,abs_ge_50mWh
+1,2992,115,6.0,0.803,93.0,7.0,100.0,32.0,1.539,548.0,AC_BOUND,2026-06-08T10:02:59Z,rolling30-v2.0,30,1,abs_ge_50mWh
+2,11323,66,4.0,0.7852,61.0,23.0,80.0,27.0,3.417,438.0,MOBILE_DEEP_CYCLE,2026-06-08T10:02:59Z,rolling30-v2.0,30,1,abs_ge_50mWh
+3,14282,402,7.0,0.8497,93.0,7.0,100.0,32.0,0.7015,847.5,AC_BOUND,2026-06-08T10:02:59Z,rolling30-v2.0,30,1,abs_ge_50mWh
+4,72514,541,10.0,0.6166,94.0,6.0,100.0,35.0,5.9135,431.0,MOBILE_DEEP_CYCLE,2026-06-08T10:02:59Z,rolling30-v2.0,30,1,abs_ge_50mWh
+5,59619,539,3.0,0.8768,53.0,47.0,100.0,20.0,4.601,421.0,AC_BOUND,2026-06-08T10:02:59Z,rolling30-v2.0,30,1,abs_ge_50mWh
+6,33,1,22.0,0.4293,73.0,27.0,100.0,7672.0,0.019,30044.0,MOBILE_DEEP_CYCLE,2026-06-08T10:02:59Z,rolling30-v2.0,30,1,abs_ge_50mWh

@@ -159,6 +159,184 @@ def _name_cluster(row: pd.Series, fleet_cycle_p25: float) -> str:
     return "SPARSE_OR_REVIEW"
 
 
+# --------------------------------------------------------------------------- #
+# v2: usage-ONLY clustering + post-hoc outcome profiling (spec 12)
+# --------------------------------------------------------------------------- #
+# Strictly usage-shape inputs. NO response/no_response counts, NO FCC update/response counts,
+# NO final labels, NO hardware identity (spec 12.1). This is the key v2 fix: v1's
+# CLUSTER_FEATURES mixed in n_80_20_80_* and fcc_effective_changes_30d (response/update
+# outcomes), which conflated usage shape with the very thing we score against.
+USAGE_ONLY_CLUSTER_FEATURES = [
+    "cycle_delta_30d", "cycle_rate_per_30d", "ac_time_ratio_30d", "charge_time_ratio_30d",
+    "discharge_time_ratio_30d", "rsoc_min_30d", "rsoc_max_30d", "rsoc_swing_30d",
+    "frac_below_20_30d", "frac_above_80_30d", "frac_above_95_30d",
+    "n_discharge_sessions_30d", "n_acdc_switches_30d", "gaps_gt_12h_count",
+    "p95_interval_h", "n_samples_30d",
+]
+
+# v2 cluster names (spec 12.3). The three gauge-relevant (low learning-opportunity) clusters
+# are AC_BOUND / SHALLOW_TOPUP / LOW_CYCLING — these gate Gauge Core/Soft in online_policy_v2.
+PROFILE_NAMES_V2 = ("AC_BOUND", "SHALLOW_TOPUP", "LOW_CYCLING", "MOBILE_DEEP_CYCLE",
+                    "MOBILE_MODERATE_CYCLE", "SPARSE_OR_GAPPY")
+GAUGE_RELEVANT_CLUSTERS = {"AC_BOUND", "SHALLOW_TOPUP", "LOW_CYCLING"}
+
+
+def run_usage_clustering_v2(
+    feats: pd.DataFrame, max_fit: int = 40000, random_state: int = 42,
+    quality_col: str = "window_data_quality_label",
+) -> Tuple[pd.DataFrame, pd.DataFrame, Dict[str, object]]:
+    """Usage-only clustering (spec 12.1). Returns (assignments, profiles, info).
+
+    Mirrors :func:`run_clustering` but uses ``USAGE_ONLY_CLUSTER_FEATURES`` (no outcome
+    columns) and the v2 cluster names. The outcome profile is computed SEPARATELY and
+    post-hoc by :func:`profile_cluster_outcomes_v2` so naming never sees response outcomes.
+    """
+    from sklearn.pipeline import Pipeline
+    from sklearn.impute import SimpleImputer
+    from sklearn.preprocessing import RobustScaler
+
+    cols = [c for c in USAGE_ONLY_CLUSTER_FEATURES if c in feats.columns]
+    # guard: no outcome/identity columns reached the cluster inputs
+    _assert_usage_only(cols)
+    info: Dict[str, object] = {"features": cols, "algo": None}
+    work = feats.copy()
+    ok_mask = (work[quality_col] == "WINDOW_QUALITY_OK") if quality_col in work \
+        else np.ones(len(work), bool)
+    ok = work[ok_mask]
+    if len(ok) < 20:
+        work["cluster_id"] = -1
+        work["cluster_profile_name"] = "SPARSE_OR_GAPPY"
+        info["algo"] = "too_few_windows"
+        assign = work[["user_id", "window_end_date", "cluster_id", "cluster_profile_name"]]
+        return assign, _profile_frame_v2(work, cols), info
+
+    X_all = ok[cols].replace([np.inf, -np.inf], np.nan)
+    if len(ok) > max_fit:
+        idx = np.linspace(0, len(ok) - 1, max_fit).astype(int)
+        fit_X = X_all.iloc[idx]
+    else:
+        fit_X = X_all
+    pre = Pipeline([("imp", SimpleImputer(strategy="median")), ("sc", RobustScaler())])
+    Z_fit = pre.fit_transform(fit_X)
+    Z_all = pre.transform(X_all)
+    labels, algo, k = _fit_predict(Z_fit, Z_all, random_state)
+    info["algo"], info["n_clusters"] = algo, int(k)
+
+    work["cluster_id"] = -1
+    work.loc[ok.index, "cluster_id"] = labels
+    profiles = _profile_frame_v2(work, cols)
+    name_map = dict(zip(profiles["cluster_id"], profiles["cluster_profile_name"]))
+    work["cluster_profile_name"] = work["cluster_id"].map(name_map).fillna("SPARSE_OR_GAPPY")
+    assign = work[["user_id", "window_end_date", "cluster_id",
+                   "cluster_profile_name"]].copy()
+    return assign, profiles, info
+
+
+def _assert_usage_only(cols: List[str]) -> None:
+    """Raise if a response/update-outcome or identity token reached cluster inputs (spec 12.1)."""
+    forbidden = ("no_response", "ok_complete", "censored", "response", "fcc_effective_changes",
+                 "fcc_any_changes", "final_label", "device_model", "batt_vendor", "batt_fru",
+                 "serial", "uuid", "anomaly", "stateful_label")
+    bad = [c for c in cols if any(t in c.lower() for t in forbidden)]
+    assert not bad, f"usage-only clustering input contains outcome/identity feature(s): {bad}"
+
+
+def _name_cluster_v2(row: pd.Series, fleet_cycle_p25: float) -> str:
+    ac = row.get("median_ac_time_ratio", np.nan)
+    swing = row.get("median_rsoc_swing", np.nan)
+    rmin = row.get("median_rsoc_min", np.nan)
+    cyc = row.get("median_cycle_delta", np.nan)
+    p95 = row.get("median_p95_gap_h", np.nan)
+    nsamp = row.get("median_n_samples", np.nan)
+    # data shape first: a sparse/gappy cluster is not a usage profile we trust
+    if (pd.notna(p95) and p95 > 36.0) or (pd.notna(nsamp) and nsamp < 30):
+        return "SPARSE_OR_GAPPY"
+    if pd.notna(ac) and ac >= 0.80:
+        return "AC_BOUND"
+    if (pd.notna(swing) and swing < 40) and (pd.notna(rmin) and rmin > 30):
+        return "SHALLOW_TOPUP"
+    if pd.notna(cyc) and cyc <= fleet_cycle_p25:
+        return "LOW_CYCLING"
+    if pd.notna(swing) and swing >= 60:
+        return "MOBILE_DEEP_CYCLE"
+    return "MOBILE_MODERATE_CYCLE"
+
+
+def _profile_frame_v2(work: pd.DataFrame, cols: List[str]) -> pd.DataFrame:
+    has = work["cluster_id"] >= 0
+    if not has.any():
+        return pd.DataFrame(columns=["cluster_id", "n_windows", "n_users",
+                                     "cluster_profile_name"])
+    fleet_cycle_p25 = float(work.loc[has, "cycle_delta_30d"].quantile(0.25)) \
+        if "cycle_delta_30d" in work else 0.0
+    rows = []
+    for cid, g in work[has].groupby("cluster_id"):
+        def med(c):
+            return round(float(g[c].median()), 4) if c in g else np.nan
+        rows.append({
+            "cluster_id": int(cid), "n_windows": int(len(g)),
+            "n_users": int(g["user_id"].nunique()),
+            "median_cycle_delta": med("cycle_delta_30d"),
+            "median_ac_time_ratio": med("ac_time_ratio_30d"),
+            "median_rsoc_swing": med("rsoc_swing_30d"),
+            "median_rsoc_min": med("rsoc_min_30d"),
+            "median_rsoc_max": med("rsoc_max_30d"),
+            "median_n_discharge_sessions": med("n_discharge_sessions_30d"),
+            "median_p95_gap_h": med("p95_interval_h"),
+            "median_n_samples": med("n_samples_30d"),
+        })
+    pf = pd.DataFrame(rows)
+    pf["cluster_profile_name"] = pf.apply(lambda r: _name_cluster_v2(r, fleet_cycle_p25), axis=1)
+    return pf
+
+
+def profile_cluster_outcomes_v2(
+    assignments: pd.DataFrame, daily: pd.DataFrame,
+    label_col: str = "stateful_label_v2",
+) -> pd.DataFrame:
+    """POST-HOC outcome profile per cluster (spec 12.2) — interpretation only.
+
+    Joins cluster assignments with the per-window outcome counts and the v2 stateful label,
+    then reports share_response / share_no_response / share_censored / share_large_gap /
+    share_fw_core / share_gauge_core / share_soft_calibration. This is computed AFTER
+    clustering and naming, never fed back into cluster inputs.
+    """
+    keys = ["user_id", "window_end_date"]
+    cols = [c for c in daily.columns if c.startswith("n_80_20_80_")]
+    use = daily[keys + [c for c in (label_col,) if c in daily.columns] + cols].copy()
+    m = assignments.merge(use, on=keys, how="left")
+    out = []
+    for cid, g in m.groupby("cluster_id"):
+        ok = float(g.get("n_80_20_80_ok_complete_30d", pd.Series(0, index=g.index)).sum())
+        nr = float(g.get("n_80_20_80_no_response_30d", pd.Series(0, index=g.index)).sum())
+        cens = float(g.get("n_80_20_80_censored_30d", pd.Series(0, index=g.index)).sum())
+        lg = float(g.get("n_80_20_80_large_gap_30d", pd.Series(0, index=g.index)).sum())
+        denom_resolved = max(ok, 1.0)
+        denom_all = max(ok + lg + cens, 1.0)
+        rec = {
+            "cluster_id": int(cid),
+            "cluster_profile_name": g["cluster_profile_name"].iloc[0]
+                if "cluster_profile_name" in g else "",
+            "n_windows": int(len(g)),
+            "share_response": round((ok - nr) / denom_resolved, 4),
+            "share_no_response": round(nr / denom_resolved, 4),
+            "share_censored": round(cens / denom_all, 4),
+            "share_large_gap": round(lg / denom_all, 4),
+        }
+        if label_col in g:
+            n = max(g["user_id"].nunique(), 1)
+            latest = g.sort_values("window_end_date").groupby("user_id").tail(1)
+            vc = latest[label_col].value_counts()
+            n_users = max(len(latest), 1)
+            rec["share_fw_core"] = round(int(vc.get("STATEFUL_FW_CHECK_CORE", 0)) / n_users, 4)
+            rec["share_gauge_core"] = round(
+                int(vc.get("STATEFUL_GAUGE_RESET_CORE", 0)) / n_users, 4)
+            rec["share_soft_calibration"] = round(
+                int(vc.get("STATEFUL_GAUGE_SOFT_CALIBRATION_EFFECTIVE_ONLY", 0)) / n_users, 4)
+        out.append(rec)
+    return pd.DataFrame(out)
+
+
 def _profile_frame(work: pd.DataFrame, cols: List[str]) -> pd.DataFrame:
     has = work["cluster_id"] >= 0
     if not has.any():

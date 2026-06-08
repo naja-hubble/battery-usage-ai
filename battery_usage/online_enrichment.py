@@ -19,7 +19,8 @@ import numpy as np
 import pandas as pd
 
 HW_TOKENS = ("device_model", "batt_vendor", "batt_fru", "manufacturer", "serial",
-             "uuid", "mtm", "product_uuid")
+             "uuid", "mtm", "product_uuid", "identifyingnumber", "designcapacity",
+             "design_capacity", "type_model")
 DEFAULT_GROUP_AXES = ("batt_fru", "batt_vendor", "device_model")
 
 
@@ -122,4 +123,81 @@ def enrich_all(
     frames = [enrich_axis(snap, user_meta, ax, candidate_labels, min_group_n)
               for ax in group_axes]
     frames = [f for f in frames if not f.empty]
+    return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
+
+
+# --------------------------------------------------------------------------- #
+# v2: multi-population enrichment over arbitrary candidate ID sets (spec 15)
+# --------------------------------------------------------------------------- #
+def enrich_population_axis(
+    snap: pd.DataFrame, user_meta: pd.DataFrame, axis: str,
+    candidate_ids: set, min_group_n: int = 5,
+) -> pd.DataFrame:
+    """Enrichment for one axis where candidacy is an explicit user-id set (e.g. a top-N queue).
+
+    Identical statistics to :func:`enrich_axis` (beta-binomial shrinkage + Fisher + BH) but
+    candidacy is not tied to a label column, so it works for ranked engineering queues and
+    no_response>=2 sets as well as tier labels.
+    """
+    from scipy.stats import beta as beta_dist, fisher_exact
+
+    if axis not in user_meta.columns:
+        return pd.DataFrame()
+    df = snap[["user_id"]].drop_duplicates().merge(
+        user_meta[["user_id", axis]].drop_duplicates("user_id"), on="user_id", how="left")
+    df["is_cand"] = df["user_id"].isin(candidate_ids).astype(int)
+    df = df[df[axis].notna()]
+    total_cand = int(df["is_cand"].sum())
+    total_n = int(len(df))
+    if total_cand == 0:
+        return pd.DataFrame()
+    grp = df.groupby(axis)["is_cand"].agg(["sum", "count"]).rename(
+        columns={"sum": "n_candidate", "count": "n_total"})
+    grp = grp[grp["n_total"] >= min_group_n]
+    if grp.empty:
+        return pd.DataFrame()
+    k = grp["n_candidate"].to_numpy(); n = grp["n_total"].to_numpy()
+    alpha0, beta0 = _beta_prior(k, n)
+    shrunk = (k + alpha0) / (n + alpha0 + beta0)
+    ci_low = beta_dist.ppf(0.025, k + alpha0, n - k + beta0)
+    ci_high = beta_dist.ppf(0.975, k + alpha0, n - k + beta0)
+    pvals = []
+    for kk, nn in zip(k, n):
+        a, b = kk, nn - kk
+        c, d = total_cand - kk, (total_n - nn) - (total_cand - kk)
+        try:
+            _, p = fisher_exact([[a, b], [c, d]], alternative="greater")
+        except Exception:
+            p = 1.0
+        pvals.append(p)
+    qvals = _bh(np.array(pvals))
+    return pd.DataFrame({
+        "group_axis": axis, "group_value": grp.index.astype(str),
+        "n_total": n, "n_candidate": k,
+        "raw_rate": np.round(k / n, 4), "shrunk_rate": np.round(shrunk, 4),
+        "ci_low": np.round(ci_low, 4), "ci_high": np.round(ci_high, 4),
+        "fisher_p": np.round(pvals, 5), "q_value": np.round(qvals, 5),
+        "fleet_rate": round(total_cand / max(total_n, 1), 4),
+    }).sort_values("shrunk_rate", ascending=False).reset_index(drop=True)
+
+
+def enrich_multi_population(
+    snap: pd.DataFrame, user_meta: pd.DataFrame, populations: Dict[str, set],
+    group_axes: Sequence[str] = DEFAULT_GROUP_AXES, min_group_n: int = 5,
+) -> pd.DataFrame:
+    """Run enrichment for several candidate populations (spec 15). ``populations`` maps a
+    population name -> set of candidate user_ids. Concatenated with a ``population`` column.
+    Warns (via a ``small_n`` column) when a population is too small to be reliable.
+    """
+    frames = []
+    for pop_name, ids in populations.items():
+        ids = set(ids)
+        for ax in group_axes:
+            f = enrich_population_axis(snap, user_meta, ax, ids, min_group_n)
+            if not f.empty:
+                f.insert(0, "population", pop_name)
+                f["population_n"] = len(ids)
+                # flag any population at/under the per-group floor (so FW_CORE n=5 warns too)
+                f["small_population_warning"] = len(ids) <= min_group_n
+                frames.append(f)
     return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
