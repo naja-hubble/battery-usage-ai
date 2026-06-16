@@ -78,7 +78,8 @@ GAP_CAP_H = 2.0          # matches cfg.analysis['max_sample_gap_hours']
 MIN_SESS_MIN = 5.0       # discharge-session min duration (features.py rule)
 MIN_SESS_DOD = 3.0       # discharge-session min depth-of-discharge %
 
-LOW_CYCLE = 5            # primary "barely cycled" threshold (also report 3 / 10)
+LOW_CYCLE = 5            # primary "barely cycled" threshold (drives scatter/examples)
+COUNT_THRESHOLDS = [3, 5, 10, 20, 50, 80, 100]   # cycle_last cuts for the breakdown
 MIN_OBS_DAYS = 30        # effective (covered) observed days to judge "watched enough"
 AC_RATIO_T = 0.80        # at/above this the user is AC-bound (when current+watched)
 AC_MAX_EQUIV = 2.0       # AC_BOUND requires < this many DoD-equivalent cycles observed
@@ -282,36 +283,70 @@ def plot_scatter(m: pd.DataFrame, out: Path) -> None:
     print(f"  wrote {out}")
 
 
-def plot_cause_counts(feat: pd.DataFrame, out: Path) -> None:
-    thresholds = [3, 5, 10]
+def cause_counts_by_threshold(feat: pd.DataFrame, thresholds) -> dict:
     counts = {}
     for thr in thresholds:
         mm = add_causes(feat, thr)
         vc = mm.loc[mm["is_low_cycle"], "cause"].value_counts()
         counts[thr] = [int(vc.get(c, 0)) for c in CAUSE_ORDER]
+    return counts
 
-    fig, ax = plt.subplots(figsize=(10.5, 6.2))
+
+def plot_cause_counts(feat: pd.DataFrame, out: Path) -> None:
+    thresholds = COUNT_THRESHOLDS
+    counts = cause_counts_by_threshold(feat, thresholds)
     x = np.arange(len(thresholds))
+    totals = np.array([sum(counts[t]) for t in thresholds])
+
+    # Population spans 27..575, so show BOTH absolute magnitude and composition.
+    fig, (axA, axP) = plt.subplots(1, 2, figsize=(15.5, 6.6))
+
+    # --- left: absolute stacked counts ---
     bottom = np.zeros(len(thresholds))
     for i, c in enumerate(CAUSE_ORDER):
         vals = np.array([counts[t][i] for t in thresholds])
-        ax.bar(x, vals, 0.7, bottom=bottom, color=CAUSE_COLOR[c], label=CAUSE_JP[c])
+        axA.bar(x, vals, 0.72, bottom=bottom, color=CAUSE_COLOR[c], label=CAUSE_JP[c])
         for xi, (v, b) in enumerate(zip(vals, bottom)):
-            if v > 0:
-                ax.text(xi, b + v / 2, str(v), ha="center", va="center",
-                        fontsize=9, color="white", fontweight="bold")
+            if v >= 6:
+                axA.text(xi, b + v / 2, str(v), ha="center", va="center",
+                         fontsize=8, color="white", fontweight="bold")
         bottom += vals
     for xi in range(len(thresholds)):
-        ax.text(xi, bottom[xi] + 1.5, f"計 {int(bottom[xi])}", ha="center", fontsize=10, fontweight="bold")
+        axA.text(xi, bottom[xi] + totals.max() * 0.01, f"計{int(bottom[xi])}",
+                 ha="center", fontsize=9, fontweight="bold")
+    axA.set_xticks(x)
+    axA.set_xticklabels([f"≤{t}" for t in thresholds], fontsize=11)
+    axA.set_xlabel("cycle_last しきい値", fontsize=11)
+    axA.set_ylabel("user 数", fontsize=12)
+    axA.set_title("原因内訳（実数）", fontsize=13, fontweight="bold")
+    axA.legend(frameon=False, fontsize=8.2, loc="upper left")
+    axA.grid(axis="y", alpha=0.3)
+    axA.set_ylim(0, totals.max() * 1.12)
 
-    ax.set_xticks(x)
-    ax.set_xticklabels([f"cycle_last ≤ {t}" for t in thresholds], fontsize=11)
-    ax.set_ylabel("user 数", fontsize=12)
-    ax.set_title("低cycle user の原因内訳（しきい値別）", fontsize=14, fontweight="bold", pad=12)
-    ax.legend(frameon=False, fontsize=8.5, loc="upper left")
-    ax.grid(axis="y", alpha=0.3)
-    ax.set_ylim(0, bottom.max() * 1.18)
-    fig.tight_layout()
+    # --- right: 100% composition ---
+    bottom = np.zeros(len(thresholds))
+    for i, c in enumerate(CAUSE_ORDER):
+        share = np.array([counts[t][i] / totals[ti] * 100 for ti, t in enumerate(thresholds)])
+        axP.bar(x, share, 0.72, bottom=bottom, color=CAUSE_COLOR[c], label=CAUSE_JP[c])
+        for xi, (v, b) in enumerate(zip(share, bottom)):
+            if v >= 5:
+                axP.text(xi, b + v / 2, f"{v:.0f}%", ha="center", va="center",
+                         fontsize=8, color="white", fontweight="bold")
+        bottom += share
+    axP.set_xticks(x)
+    axP.set_xticklabels([f"≤{t}\n(n={totals[i]})" for i, t in enumerate(thresholds)], fontsize=9.5)
+    axP.set_xlabel("cycle_last しきい値", fontsize=11)
+    axP.set_ylabel("構成比 %", fontsize=12)
+    axP.set_title("原因構成比（100%積み上げ）", fontsize=13, fontweight="bold")
+    axP.grid(axis="y", alpha=0.3)
+    axP.set_ylim(0, 100)
+
+    fig.suptitle("低cycle user の原因内訳（cycle_last しきい値別）", fontsize=14, fontweight="bold")
+    fig.text(0.01, 0.005,
+             "しきい値を上げるほど母数は増えるが、どの水準でも『データ更新停止』が支配的でAC長時間はごく僅か。"
+             "gauge未加算は2人で一定。 ≤50以上は中程度cycleも含むため『低cycle』は相対的。",
+             fontsize=8, color="#444")
+    fig.tight_layout(rect=(0, 0.03, 1, 0.97))
     fig.savefig(out, dpi=DPI, bbox_inches="tight")
     plt.close(fig)
     print(f"  wrote {out}")
@@ -393,6 +428,18 @@ def write_report(feat: pd.DataFrame, sens: pd.DataFrame, ref_date, out: Path) ->
     L.append(f"\n→ 観測/データ起因 (A) = **{n_obs}**, AC長時間 (B) = **{int(vc.get('AC_BOUND',0))}**, "
              f"gauge未加算 (C) = **{int(vc.get('GAUGE_NOT_INCREMENTING',0))}**, "
              f"その他 = {int(vc.get('OTHER_LOW_CYCLING',0))}。\n")
+
+    # breakdown across cycle_last thresholds (count + share).
+    ctab = cause_counts_by_threshold(feat, COUNT_THRESHOLDS)
+    L.append("## cycle_last しきい値別の原因内訳\n")
+    L.append("| cycle_last ≤ | n | " + " | ".join(c.split("_")[0] for c in CAUSE_ORDER) + " |")
+    L.append("|---:|---:|" + "---:|" * len(CAUSE_ORDER))
+    for thr in COUNT_THRESHOLDS:
+        tot = sum(ctab[thr])
+        cells = " | ".join(f"{v} ({v/tot*100:.0f}%)" if tot else "0" for v in ctab[thr])
+        L.append(f"| {thr} | {tot} | {cells} |")
+    L.append("\n→ どのしきい値でも **LOGGING_STOPPED（更新停止）が支配的**、AC_BOUND はごく僅か（≤6）、"
+             "gauge未加算は2で一定。しきい値≥50では中程度cycleのuserも含むため「低cycle」は相対的になる点に注意。\n")
 
     grp = low.groupby("cause")
     L.append("## 原因別evidence（中央値）\n")
