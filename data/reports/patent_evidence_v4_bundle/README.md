@@ -20,7 +20,7 @@
 技術エビデンス強度 ≠ 新規性リスク。先行技術は全てUNVERIFIED、出願前に正式FTO/特許性調査・弁理士レビュー必須。
 法的novelty/inventive step/侵害自由/登録可能性は一切主張しない。
 
-## ファイル一覧（64 files, SHA-256 16桁）
+## ファイル一覧（66 files, SHA-256 16桁）
 
 ### data/
 - `availability_probe_v4.json` (1489 B, sha256:24ca1523b9b3975c)
@@ -69,6 +69,8 @@
 - `fcc_invention_disclosure_v4.md` (2789 B, sha256:faa75819c575fb1a)
 - `fcc_patent_counsel_brief_v4.md` (4229 B, sha256:7f6cc64a37a00eff)
 - `fcc_patent_evidence_v4_report.md` (13429 B, sha256:03386f88ef86bac7)
+- `fcc_patent_summary_slides_v4.md` (12325 B, sha256:2522a4a194f315f6)
+- `fcc_patent_summary_slides_v4.pptx` (882919 B, sha256:d1ff0749bf0b5710)
 - `fcc_patent_v4_adversarial_review.md` (39602 B, sha256:6953a7c3e79e4e34)
 
 ### figures/

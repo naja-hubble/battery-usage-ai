@@ -1,0 +1,208 @@
+#!/usr/bin/env python
+"""FCC更新停止者の判定技術 サマリ（Markdown / Marp 版）。
+
+主役は『テレメトリからFCC更新停止(ゲージ凍結)者をどう判定するか』。その過程で
+生まれた特許候補を3つ(+将来2つ)に集約。粒度の最終判断は社内reviewerに委ねる。
+pptx 版(build_v4_pptx.py)と同じ物語。数値は produced v4 results から引用。
+"""
+from __future__ import annotations
+
+import json
+import sys
+
+try:
+    sys.stdout.reconfigure(encoding="utf-8")
+except Exception:
+    pass
+
+from battery_usage import patent_common_v4 as pc
+
+R = json.load(open(pc.V4_DIR / "_v4_results_summary.json", encoding="utf-8"))
+A2, A3, B, C2, C3, D, DM, E = (R["A2"], R["A3"], R["B"], R["C2"], R["C3"],
+                               R["D"], R["Dmin"], R["E"])
+OUT = pc.REPORTS / "fcc_patent_summary_slides_v4.md"
+FOOT = ("技術的特許性エビデンス（NOT a legal opinion）。先行技術は UNVERIFIED。"
+        "特許化の粒度・範囲の最終判断は社内reviewer/弁理士。捏造なし。")
+
+doc = f"""---
+marp: true
+paginate: true
+title: FCC更新停止者の判定技術 — サマリ v4
+footer: "{FOOT}"
+---
+
+<!-- _class: lead -->
+# テレメトリからの FCC更新停止（ゲージ凍結）者の判定技術
+## — と、その実現過程で生まれた特許候補アイデア —
+
+- **本題**: テレメトリ(RSOC/FCC/サイクル/時刻)だけで『FCCを再学習しなくなった個体』を判定する
+- 母集団: 実バッテリ履歴 752ユーザー / 全期間 24,711 学習機会(エピソード)
+- 特許候補は **3つ(+将来2つ)** に集約。**どこをどの粒度で特許化するかの最終判断は社内reviewerに委ねる**
+- 技術効果は proxy ラベルに依存しない独立指標で検証。法的結論は主張しない
+
+> {FOOT}
+
+---
+
+# 用語定義 (1/2) — バッテリと学習機会
+
+- **FCC（満充電容量）**: 燃料計が学習する今の満充電容量(mWh)。劣化で減る。充放電で段階的に再学習。
+- **FCC更新停止 / ゲージ凍結**: FCCが長期間更新されない状態（SoH=FCC×100/DesignCapacity が動かない）。判定対象。
+- **RSOC（相対残量%）**: = remainingCapacity/FCC×100。high=満充電付近、low=空付近。
+- **学習機会 / エピソード**: 燃料計がFCCを再学習できる『深い放電→再充電』1サイクル。RSOC high→low→high。
+- **START / LOW / END**: 開始(高RSOC) / 谷(最深放電) / 終了(再び高RSOC=再充電完了)。END=機会の完了時刻。
+- **有効ステップ(≥50mWh)**: 学習応答とみなす最小FCC変化。量子化最小10mWh、未満は micro-step(微小)。
+- **応答ステータス(END後72h窓)**: responded / no_response(窓全観測で無し) / censored(未観測=無応答に数えない)。
+
+---
+
+# 用語定義 (2/2) — 検証手法と統計
+
+- **対照 / ヌル分布(null)**: 効果が無い場合に期待される値。実データが95%区間より外れれば効果あり。
+- **負の対照検定(A2)**: 機会END時刻をズラした『ニセ機会』と比較し、応答が真の機会に特異かを検証。
+- **アンカー比較(A3)**: 応答の起点を START/LOW/END で比較し『因果汚染(再充電完了前を応答と誤計上)』を定量。
+- **応答ハザード(B)**: 機会ENDからの経過時間に対する累積応答率(生存解析)。
+- **欠測ストレス(E) / 保持グリッド(D)**: 欠測・打ち切り注入耐性 / 保持を短くしても全期間と等価か。
+- **user-bootstrap**: ユーザ単位で再標本し信頼区間を計算(同一ユーザの複数機会を独立扱いしない)。
+- **dual-track / 非対称リセット**: any(全変化)とeffective(≥50mWh)を別系統で追跡、微小変化はany系統のみリセット。
+
+---
+
+# 本来の目的と、なぜ難しいか  〈Part1 本題〉
+
+**目的**: テレメトリだけから FCCを再学習しなくなった個体(ゲージ凍結)をフリート規模で正しく判定する。
+
+**なぜ難しいか**
+- 静的検査では区別不能: FCCが動かない理由が『浅充放電で正常』『要再較正』『FW/HW起因』か判別できない
+- 欠測・睡眠ギャップ・記録打ち切り: データの穴を『無応答』と誤判定しやすい
+- 生データ保持が有界: 直近30日等の制約で過去の証拠が失われる
+- 機種非依存が必須: 機種名でハードコードすると過学習・汎化不能
+
+---
+
+# 失敗した素朴アプローチ → 発想の転換  〈Part1 本題〉
+
+『使用挙動から凍結を予測』しようとしたが解けなかった:
+- 教師あり予測(33特徴, 公平領域): **AUC ≈ 0.54**（ほぼランダム）
+- FCC履歴を除いた規範ML: **AUC ≈ 0.56**（near-random）
+
+**発想転換**: 『凍結を当てる』のではなく、**『再学習する“機会”に対し実際に応答したかを機械的に監査する』**。本技術の核。
+
+---
+
+# 提案手法の全体像 — テレメトリ → 判定  〈Part1 本題〉
+
+入力はテレメトリのみ（ハードウェア識別子は使わない）。
+
+1. **学習機会の抽出**（RSOC high→low→high）
+2. **END起点で応答監査**（再充電完了後72h窓の有効ステップ≥50mWh、censor-aware）
+3. **欠測/打ち切り耐性**（段階品質ティア＋censored除外）
+4. **二分岐トリアージ**（機会反復×無応答→FW候補 / 機会皆無→ゲージ再較正候補）
+5. **有界保持で証拠保全**（最小状態の因果台帳、30日保持で全期間等価）
+
+出力: NORMAL / ゲージ再較正候補 / FW確認候補 / 判定保留。 ①③④→候補①、②→候補②、⑤→候補③。
+
+---
+
+# 判定法が機能する根拠（結果）  〈Part1〉
+
+| 根拠 | グラフ | 主張 | 読み方 |
+|---|---|---|---|
+| ① A2 | negative_control_true_vs_null | 応答は真の機会に特異(真{A2['true_resp_prob_72h']:.2f}が{A2['n_controls_outside_null']}/{A2['n_controls_total']}対照のヌル外) | 赤線が棒(95%区間)より上=効果明確 |
+| ② A3 | response_anchor_contamination | END起点の因果汚染0 vs START {A3['start_contamination_frac_72h']:.2f} | 棒が低い=汚染少。END=0が理想 |
+| ③ B | response_hazard_true_vs_pseudo | 真の機会後ほど速く応答(72h {B['true_cif_72h_50mwh']:.2f} vs pseudo {B['pseudo_cif_72h_50mwh']:.2f}) | 上の曲線ほど応答が速い/多い |
+| ④ E | missingness_false_escalation | 欠測でも誤無応答を {E['naive_mean_false_no_response']:.0f}→{E['proposed_mean_false_no_response']:.1f} に抑制 | 棒が短い=誤判定少 |
+| ⑤ D | retention_invariance_heatmap | 30日保持で全期間一致(recall1/重複0) を {D['min_stateful_equivalent_storage_ratio']*100:.0f}% storageで | statefulの行が全緑=等価 |
+
+> 各図の詳細解説は .pptx 版（4ブロック: 何のグラフ/軸・変数/主張/読み方）参照。
+
+---
+
+# 過程で生まれた特許候補（位置づけ）  〈Part2〉
+
+本技術は単一目的の一連の手法。その実現過程で、単独でも特許になりうる中核アイデアが生まれた。
+細分化しすぎると評価しづらいため **3つ(+将来2つ)に集約**。**特許化の粒度判断は社内reviewerに委ねる**（下表は判断材料）。
+
+| 特許候補（集約後） | 対応手法段 | 技術エビデンス | 新規性リスク(UNVERIFIED) |
+|---|---|---|---|
+| ① 機会条件付き無応答監査（中核判定法） | ①+③+④ | STRONG | MEDIUM-HIGH |
+| ② デュアルトラック非対称リセット状態機械 | ②(微小変化) | STRONG | **HIGH** |
+| ③ 有界保持の因果証拠台帳（最小状態） | ⑤(保持制約) | STRONG | MEDIUM-HIGH |
+| (将来④) 診断依存クローズドループ介入検証 | 介入後検証 | PROSPECTIVE | — |
+| (将来⑤) 機種非依存スクリーニング+version局在 | 原因局在 | MEDIUM | MEDIUM |
+
+---
+
+# 特許候補① 機会条件付き無応答監査（中核判定法） [IC1+IC6+二分岐 相当]
+
+**技術エビデンス: STRONG / 新規性リスク: MEDIUM-HIGH**
+- **背景**: FCC再学習は深い充放電(学習機会)でしか起きないが、機会有無と応答有無は静的検査で分離できない。
+- **問題**: 凍結が『機会が無いだけ(正常/再較正)』か『機会はあるのに応答しない(FW/HW疑い)』か判別できない。
+- **課題**: テレメトリだけで機会有無と応答有無を因果分離し、欠測・打ち切りに騙されず判定。
+- **解決法**: RSOC機会抽出→END起点72h窓で responded/no_response/censored 分類→段階品質+censor除外→二分岐(FW/ゲージ)。
+- **特許性**: A2(機会-応答特異性)・A3(END汚染0)・E(欠測耐性)で実証。リスク: 非発生監視は広い先行技術→狭め出願推奨。
+- **必要特徴量**: RSOC/FCC/cycleCount/timestamp(raw) → 学習機会(start/low/end)/有効ステップ≥50mWh/応答ステータス/品質ティア/二分岐スコア(派生)。識別子は不使用。
+
+---
+
+# 特許候補② デュアルトラック非対称リセット状態機械 [IC2 + 有効閾値C3 相当]
+
+**技術エビデンス: STRONG / 新規性リスク: HIGH**
+- **背景**: 量子化最小{C3['quantization_unit_mwh']:.0f}mWh。微小変化と意味ある再学習(≥50mWh)が混在(二峰 {C3['gmm_micro_mode_mwh']:.0f}/{C3['gmm_effective_mode_mwh']:.0f}mWh)。
+- **問題**: 1系統だと microステップが未解決の無応答証拠をリセットして消し、FW疑いを見逃す。
+- **課題**: 微小ゆらぎで証拠を失わず、ソフト較正とハードリセットを区別。
+- **解決法**: any系統(任意変化でreset)とeffective系統(≥50mWhのみreset)を分離。microはany系統のみreset、effective証拠は保持(非対称)。
+- **特許性**: C2で対称が消す無応答{C2['d2_no_response_erased']}件を温存(+{C2['evidence_preserved_vs_symmetric']})、hard {C2['hard_prompts_d1_effective_only']}→{C2['hard_prompts_d4_proposed']}。**リスク高: production実装済+deadbandは一般先行技術→新規性は着想日依存(法的)**。
+- **必要特徴量**: FCCステップ(符号/絶対値)・is_effective/is_micro・量子化単位・any/effective状態カウンタ・GMM谷・persistence/reversal(派生)。
+
+---
+
+# 特許候補③ 有界保持下の因果証拠台帳（最小十分状態） [IC5 相当]
+
+**技術エビデンス: STRONG / 新規性リスク: MEDIUM-HIGH**
+- **背景**: フリート監視では生データ保持が有界(例:30日)。
+- **問題**: 保持窓をまたぐ機会証拠が破棄で失われる/重複(状態なしは7日で recall {D['stateless_7d_recall_72h']:.2f}・重複率 {D['stateless_7d_dup_rate_72h']:.1f})。
+- **課題**: 有界保持でも全期間版と等価な判定を、最小の永続状態で実現。
+- **解決法**: 部分FSM・pending期限キュー・seen-id・直近any/effective変化を永続化し因果リプレイ。期限は窓観測時のみ発火(未来リーク無)。
+- **特許性**: Dで recall=1/重複=0/誤差≈{D['stateful_verify_no_response_mae']} を storage {D['min_stateful_equivalent_storage_ratio']*100:.0f}% で達成。最小状態アブレーションで各要素が必要と実証。リスク: streaming+caching既知組合せ→最小状態構造をクレーム核に。
+- **必要特徴量**: episode_id(正準)・応答期限・直近変化ts+cycle・seen_ids・pending・部分FSM(派生・状態)。
+
+---
+
+# 将来の特許候補（PROSPECTIVE）  〈Part2〉
+
+**将来④ 診断依存クローズドループ介入検証**
+- 介入(較正/FW更新)後の『次の良質な機会』での有効応答を観測しラベル検証(介入を因果台帳に記録)。
+- 介入・BIOS/EC/FWバージョンが **NOT AVAILABLE** → 将来スキーマ・プロトコル・検出力シミュのみ(捏造なし)。
+
+**将来⑤ 機種非依存スクリーニング + version 局在**
+- 分類は行動特徴のみ(機種名/ベンダー/FRUを学習に使わない)。versionは記述的層別としてのみ事後利用。
+- スクリーニングは実装済(MEDIUM)。version局在はBIOS/EC/FW列が NOT AVAILABLE → PROSPECTIVE。
+
+---
+
+# まとめ — 社内reviewer向け判断材料
+
+| 特許候補（集約後） | 技術エビデンス | 新規性リスク(UNVERIFIED) | 出願準備度の目安 |
+|---|---|---|---|
+| ① 機会条件付き無応答監査(中核) | STRONG | MEDIUM-HIGH | 出願候補(狭め/中位で) |
+| ② 非対称リセット状態機械 | STRONG | HIGH | 出願候補(着想日要確認・規則明示) |
+| ③ 有界保持の因果証拠台帳 | STRONG | MEDIUM-HIGH | 出願候補(最小状態を核に) |
+| (将来④) クローズドループ介入 | PROSPECTIVE | — | 継続/将来開示 |
+| (将来⑤) 機種非依存+version局在 | MEDIUM | MEDIUM | スクリーニングは候補/局在は継続 |
+
+- **本題(判定技術)**: テレメトリのみ・欠測/保持制約下でも誤判定を抑えて FCC更新停止者を判定できる。
+- **特許化の粒度・範囲の最終判断は社内reviewerに委ねる**。技術エビデンスの強さ ≠ 新規性。先行技術は全てUNVERIFIED。
+
+> {FOOT}
+"""
+
+
+def main() -> int:
+    OUT.write_text(doc, encoding="utf-8")
+    print(f"slides(md) -> {OUT.relative_to(pc.REPO)}  ({doc.count(chr(10) + '---' + chr(10))} slides)")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

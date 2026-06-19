@@ -24,6 +24,7 @@ DATE = "2026-06-19"
 REPORT_FILES = [
     "fcc_patent_evidence_v4_report.md", "fcc_invention_disclosure_v4.md",
     "fcc_patent_counsel_brief_v4.md", "fcc_patent_v4_adversarial_review.md",
+    "fcc_patent_summary_slides_v4.md", "fcc_patent_summary_slides_v4.pptx",
     "fcc_intervention_data_schema_v4.csv", "fcc_intervention_power_simulation_v4.csv",
 ]
 
