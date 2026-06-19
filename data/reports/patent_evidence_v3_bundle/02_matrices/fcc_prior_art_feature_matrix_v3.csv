@@ -1,0 +1,7 @@
+our_technical_feature,nearest_prior_art_UNVERIFIED,what_prior_art_does_NOT_teach
+opportunity-conditioned FCC no-response (END-anchored),US7610172 (non-occurrence event monitoring) [UNVERIFIED],"does NOT teach battery fuel-gauge physical learning opportunity, FCC effective-step, or censor-aware exclusion"
+qualified learning opportunity = adequate discharge for gauge relearn,TI US6832171 Impedance Track [UNVERIFIED],teaches qualified-discharge FCC/Qmax learning; does NOT teach upper-layer telemetry opportunity-recurrence no-response detection
+any/effective dual-track + asymmetric reset,fuel-gauge hysteresis/deadband (generic) [UNVERIFIED],deadband known; does NOT teach asymmetric reset preserving effective evidence while micro resets any-track
+stateful sliding-window evidence recovery + event ordering,US20130085715 / US9218527 streaming anomaly [UNVERIFIED],windowing known; does NOT teach cross-window unresolved-episode confirmation with complete<reset<deadline ordering & exact-once
+model-agnostic behavioral classification + post-hoc EB enrichment,Qualcomm US9330257 [UNVERIFIED],identity-exclusion known in other domains; enrichment is descriptive-only post classification
+history-free normative baseline (leakage avoidance),Song 2007 Conditional Anomaly Detection [UNVERIFIED],normative comparison known; near-random here -> not relied on for inventive step

@@ -1,0 +1,5 @@
+detector,n_flagged_actionable,overlap_with_production_actionable,production_normal_falsely_flagged,had_lifetime_effective_step_descriptive,hard_calibration_prompts
+static_fcc_stale_rule,55,18,0,36,55
+full_history_proposed,32,32,0,18,18
+rolling_stateless_core,15,2,3,10,15
+rolling_stateful_v2_core,9,9,0,5,4

@@ -1,0 +1,15 @@
+field,dtype,description
+device_hash,str,hashed device id (no raw serial/user)
+intervention_type,enum,GAUGE_CALIBRATION | FW_UPDATE | NONE
+intervention_ts,datetime,when OEM-approved calibration/update applied
+bios_version_pre,str,BIOS version before
+bios_version_post,str,BIOS version after
+ec_version_pre,str,EC version before
+ec_version_post,str,EC version after
+battery_fw_version_pre,str,gauge FW version before
+battery_fw_version_post,str,gauge FW version after
+first_highok_opportunity_post_ts,datetime,first HIGH_OK opportunity after intervention
+effective_fcc_step_within_72h_post,bool,effective >=50mWh step within 72h of that opportunity
+effective_fcc_step_within_168h_post,bool,within 168h
+time_to_effective_response_h,float,hours from opportunity to first effective step
+cycles_to_effective_response,float,cycle increments to first effective step
