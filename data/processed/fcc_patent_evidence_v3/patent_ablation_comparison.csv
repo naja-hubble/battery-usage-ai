@@ -1,0 +1,8 @@
+variant,description,invention_family,n_flagged,legacy_active_false_action,effective_active_false_action,proxy_precision,proxy_recall,label_jaccard_vs_production,proxy_fw_captured,proxy_gauge_captured,proxy_fw_missed_silent,proxy_gauge_missed_silent
+A0,flat_tail_days>=180 only,static-baseline,55,0,36,0.3273,0.5625,0.2609,9,9,5,9
+A1,flat tail + tail_cycle_delta>=30,static-baseline,35,0,23,0.3143,0.3438,0.1964,9,2,5,16
+A2,stale + >=1 any-quality opportunity (no response check),IC1-stimulus,44,0,27,0.2045,0.2812,0.1343,9,0,5,18
+A3,END+response but censor/gap counted as no-response,IC1-naive,30,0,18,0.3,0.2812,0.1698,9,0,5,18
+A4,"END-anchored, censor-aware, single step (IC1 core)",IC1,30,0,18,0.3,0.2812,0.1698,9,0,5,18
+A5,IC1 + gap-quality tier (exclude large_gap),IC1+IC6,9,0,5,0.8889,0.25,0.2424,8,0,6,18
+A6,full proposed (production final_label actionable),IC1+IC6+IC2+branch,32,0,18,1.0,1.0,1.0,14,18,0,0

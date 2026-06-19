@@ -1,0 +1,4 @@
+figure,invention_family,claim_elements_supported,technical_problem,technical_effect
+ablation_technical_effect.png,IC1+IC6+IC2+branch,C1-opportunity-conditioned-no-response; C1-gap-tier; C1-bifurcation,static FCC-stale flags non-actionable and cannot separate gauge vs FW,gap-quality tier raises proxy precision 0.33->0.89; bifurcation+dual-track recover full FW+Gauge recall
+dual_track_threshold_evidence.png,IC2 any/effective dual-track,C5-dual-track-threshold; C5-asymmetric-reset,integer gauge micro-wobble (10 mWh quantization) indistinguishable from re-learning,58.1% steps micro(<50mWh); frozen-user fraction plateaus beyond ~50 mWh -> 50 mWh effective-step justified
+technical_effect_detectors.png,IC1+IC6+IC2 vs static,C1-core; C8-triage; H-technical-effect,avoid wrong battery maintenance actions; protect responders,static 55 (no bifurcation); proposed 32 with 0 NORMAL; stateful-v2 core 9 with 0 NORMAL vs stateless 15 with 3 NORMAL

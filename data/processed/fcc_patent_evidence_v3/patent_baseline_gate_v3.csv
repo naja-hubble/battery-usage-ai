@@ -1,0 +1,17 @@
+baseline,metric,expected,observed,match
+full_history,users,752,752,True
+full_history,no_low_candidates,96,96,True
+full_history,gauge_actionable,18,18,True
+full_history,fw_actionable,14,14,True
+full_history,watch,55,55,True
+full_history,review,338,338,True
+full_history,normal,327,327,True
+rolling_v2,STATEFUL_REVIEW_DATA_QUALITY,325,325,True
+rolling_v2,STATEFUL_NORMAL_RESPONDING,183,183,True
+rolling_v2,STATEFUL_WATCH_LARGE_GAP_OR_CENSORED,128,128,True
+rolling_v2,STATEFUL_FW_WATCH_HIGH_ANOMALY,43,43,True
+rolling_v2,STATEFUL_WATCH_LOW_EVIDENCE,35,35,True
+rolling_v2,STATEFUL_GAUGE_SOFT_CALIBRATION_EFFECTIVE_ONLY,22,22,True
+rolling_v2,STATEFUL_GAUGE_REVIEW,7,7,True
+rolling_v2,STATEFUL_FW_CHECK_CORE,5,5,True
+rolling_v2,STATEFUL_GAUGE_RESET_CORE,4,4,True

@@ -1,0 +1,3 @@
+table,required_columns
+firmware_version_case_control,"device_hash, fru_hash, model_hash, version, opportunity_exposure, obs_days, cycle_intensity, label, post_response"
+firmware_update_prepost,"device_hash, version_pre, version_post, update_ts, pre_response_rate, post_response_rate, n_opportunities_pre, n_opportunities_post"

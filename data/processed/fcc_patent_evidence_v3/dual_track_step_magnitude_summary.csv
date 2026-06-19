@@ -1,0 +1,2 @@
+n_steps,quantization_unit_mwh,abs_step_p05,abs_step_p50,abs_step_p90,abs_step_p99,frac_micro_lt_50mwh,frac_effective_ge_50mwh
+43230,10.0,10.0,30.0,620.0,3750.0,0.5814249363867684,0.41857506361323155

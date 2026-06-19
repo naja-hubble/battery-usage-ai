@@ -1,0 +1,12 @@
+threshold_kind,threshold,n_effective_steps,frac_effective,users_all_steps_below_thr,users_all_steps_below_thr_frac
+fixed_mwh,10.0,43230,1.0,0,0.0
+fixed_mwh,20.0,29534,0.6832,33,0.0477
+fixed_mwh,30.0,22579,0.5223,122,0.1763
+fixed_mwh,40.0,19961,0.4617,130,0.1879
+fixed_mwh,50.0,18095,0.4186,139,0.2009
+fixed_mwh,75.0,15290,0.3537,150,0.2168
+fixed_mwh,100.0,14227,0.3291,152,0.2197
+pct_design,0.05,22475,0.5199,124,0.1792
+pct_design,0.1,16858,0.39,147,0.2124
+pct_design,0.2,13655,0.3159,154,0.2225
+pct_design,0.5,9602,0.2221,162,0.2341
