@@ -1,0 +1,11 @@
+field,dtype,description
+device_hash,str,hashed id (no raw serial/user)
+intervention_type,enum,GAUGE_CALIBRATION | FW_UPDATE | NONE
+intervention_ts,datetime,OEM-approved calibration/update time
+bios_version_pre/post,str,BIOS version before/after
+ec_version_pre/post,str,EC version before/after
+battery_fw_version_pre/post,str,gauge FW version before/after
+first_highok_opportunity_post_ts,datetime,first HIGH_OK opportunity after intervention
+effective_fcc_step_within_72h_post,bool,>=50mWh effective step within 72h of that opportunity
+time_to_effective_response_h,float,hours to first effective step
+enters_causal_event_ledger_as,str,"intervention event with ts -> resets effective track, opens a post-intervention pending opportunity watch"

@@ -1,0 +1,6 @@
+control,true_confirmed_no_response,control_mean_confirmed_no_response,true_fw_like_flagged_users,control_mean_fw_like_flagged_users
+circular_step_shift,1402,1728.52,106,135.81
+circular_episode_shift,1402,1710.51,106,134.83
+within_user_time_randomization,1402,1706.98,106,134.78
+matched_pseudo_episode,1402,1602.3,106,120.78
+rsoc_phase_shift,1402,6761.56,106,269.88

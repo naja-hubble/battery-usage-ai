@@ -1,0 +1,6 @@
+from_policy,to_policy,fw_evidence_lost_under_other,hardreset_avoided_by_d4_microwobble,soft_calls_only_d4_makes
+D0_any_only,D4_dual_asymmetric_proposed,13,10,10
+D1_effective_only,D4_dual_asymmetric_proposed,0,112,112
+D2_dual_symmetric_any,D4_dual_asymmetric_proposed,13,10,10
+D3_dual_symmetric_effective,D4_dual_asymmetric_proposed,0,112,112
+D5_adaptive_asymmetric,D4_dual_asymmetric_proposed,0,0,0

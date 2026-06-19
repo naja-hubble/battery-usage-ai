@@ -1,0 +1,7 @@
+policy,pending_at_end,confirmed_no_response,erased_pending,erased_no_response,n_state_transitions,hard_action,fw_like,gauge_soft,gauge_reset_core,false_hard_reset_on_responder,micro_erase_events,users_evidence_erased
+D0_any_only,22,361,1802,462,43230,94,25,0,69,62,2073,281
+D1_effective_only,36,476,0,0,18095,209,38,0,171,126,0,0
+D2_dual_symmetric_any,22,361,1802,462,43230,94,25,0,69,62,2073,281
+D3_dual_symmetric_effective,36,476,0,0,18095,209,38,0,171,126,0,0
+D4_dual_asymmetric_proposed,36,476,0,0,18095,97,38,112,59,66,0,0
+D5_adaptive_asymmetric,38,597,0,0,16704,83,45,145,38,52,0,0

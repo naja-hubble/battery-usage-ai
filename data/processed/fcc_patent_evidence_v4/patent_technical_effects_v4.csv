@@ -1,0 +1,10 @@
+endpoint,result,source_analysis,supported,technical_effect
+stimulus_response_specificity,true END-anchored effective response prob 72h=0.38990426457789384 vs 5/5 controls outside null,A2 negative controls,True,"response specifically tied to true qualified END, not elapsed time / activity / identity"
+end_anchor_low_contamination,END contamination 72h=0.0 vs worst non-END=0.55692,A3 anchor comparison,True,END anchoring removes mid-cycle causal contamination of the response count
+response_time_to_event,true 50mWh CIF 72h=0.39014462406052197 vs pseudo 0.28618781469964083; median response 49.08h,B response hazard,True,true qualified episodes trigger faster/greater effective response than matched pseudo
+evidence_preservation_under_micro_step,symmetric-reset erases 462 confirmed no-response across 281 users; asymmetric preserves +115,C2 dual-track ablation,True,asymmetric reset preserves unresolved learning-response evidence a micro step would erase
+hard_action_ambiguity_reduction,hard prompts effective-only=209 -> proposed=97 (soft=112),C2 dual-track ablation,True,"dual-track routes micro-wobble users to soft calibration, fewer hard resets"
+effective_threshold_data_support,GMM micro/effective modes=14.15/216.85mWh valley=35.23mWh; micro reversal24h=0.1363,C3 effective threshold,True,bimodal step magnitude; 50mWh fallback sits above the data-driven micro/effective valley
+bounded_retention_equivalence,stateful recall=1.0 dup=0 nr_MAE=0.02 at storage ratio=0.0417,D retention invariance,True,a bounded-retention causal ledger reproduces full-history evidence at a fraction of storage
+minimal_sufficient_state,"necessary components=['eff_cycle', 'fsm', 'gap_censor', 'last_eff_ts', 'ordering', 'pending', 'seen_ids']",D state minimality,True,named state components are each necessary; removing one breaks an equivalence invariant
+censor_gap_false_escalation_robustness,false confirmed no-response naive=643.317 -> proposed=4.1; recovery=0.9663,E missingness stress,True,graded+censor-aware method suppresses false no-response under injected gaps/censoring

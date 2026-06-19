@@ -1,0 +1,14 @@
+config,component_removed,protects_invariant,physical_episode_recall,episode_id_symmetric_diff,duplicate_count,no_response_mae,invariant_failed,necessary
+A_W30_rw72,none,(full state),1.0,0.0,0.0,0.02,False,False
+A_W30_rw72,fsm,physical_episode_recall (episodes straddling a retention boundary),0.3547,3203.0,0.0,0.855,True,True
+A_W30_rw72,pending,no_response counter (resolution after raw eviction),1.0,0.0,0.0,0.0,False,True
+A_W30_rw72,seen_ids,duplicate-free replay (no double count across overlapping windows),1.0,0.0,0.0,0.02,False,True
+A_W30_rw72,last_eff_ts,response-status agreement (confirm a response after eviction),1.0,0.0,0.0,1.29,True,True
+B_W7_rw168,none,(full state),1.0,0.0,0.0,0.0,False,False
+B_W7_rw168,fsm,physical_episode_recall (episodes straddling a retention boundary),0.0383,3652.0,0.0,0.82,True,True
+B_W7_rw168,pending,no_response counter (resolution after raw eviction),1.0,0.0,0.0,1.305,True,True
+B_W7_rw168,seen_ids,duplicate-free replay (no double count across overlapping windows),1.0,0.0,0.0,0.0,False,True
+B_W7_rw168,last_eff_ts,response-status agreement (confirm a response after eviction),1.0,0.0,0.0,1.78,True,True
+(downstream),eff_cycle,cycles_since_effective_change (FW cycle gate) [descriptive],,,,,,True
+(downstream),gap_censor,censored counter [descriptive],,,,,,True
+(downstream),ordering,deterministic resolution on timestamp collision [property test],,,,,,True

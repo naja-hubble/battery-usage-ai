@@ -1,0 +1,6 @@
+method,threshold_mwh,note
+quantization_unit,10.0,smallest observed positive |step| (integer gauge unit)
+empirical_p50,30.0,median step magnitude
+empirical_p75,200.0,75th percentile
+valley_histogram,10.74,density valley between micro and macro modes (model-free)
+gmm2_valley,35.23,2-comp GMM valley; modes 14/217 mWh; BIC=73339

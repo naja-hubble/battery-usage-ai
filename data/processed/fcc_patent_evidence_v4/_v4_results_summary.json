@@ -1,0 +1,94 @@
+{
+  "A2": {
+    "true_resp_prob_72h": 0.38990426457789384,
+    "true_confirmed_no_response": 1402,
+    "n_controls_outside_null": 5,
+    "n_controls_directionally_supported": 4,
+    "n_controls_total": 5,
+    "directionally_consistent_bootstrap": true,
+    "stimulus_response_supported": true,
+    "n_anchors": 2298,
+    "n_users_with_anchors": 289,
+    "runtime_s": 753.95
+  },
+  "A3": {
+    "end_contamination_frac_72h": 0.0,
+    "start_contamination_frac_72h": 0.55692,
+    "low_contamination_frac_72h": 0.27011,
+    "worst_non_end_contamination_72h": 0.55692,
+    "end_duplicate_rate_72h": 0.22496,
+    "worst_non_end_duplicate_rate_72h": 0.24301,
+    "end_agreement_with_production": 0.93273,
+    "end_anchor_measurable_advantage": true,
+    "n_episodes": 2319,
+    "runtime_s": 1.18
+  },
+  "B": {
+    "true_cif_72h_50mwh": 0.39014462406052197,
+    "pseudo_cif_72h_50mwh": 0.28618781469964083,
+    "true_minus_pseudo_72h": 0.10395680936088114,
+    "median_response_h_50mwh": 49.08,
+    "n_episodes_primary_ok": 2319,
+    "runtime_s": 68.85
+  },
+  "C2": {
+    "d2_pending_erased": 1802,
+    "d2_no_response_erased": 462,
+    "d2_users_evidence_erased": 281,
+    "d4_confirmed_no_response": 476,
+    "evidence_preserved_vs_symmetric": 115,
+    "hard_prompts_d1_effective_only": 209,
+    "hard_prompts_d4_proposed": 97,
+    "hard_prompts_reduced_by_d4": 112,
+    "d4_gauge_soft": 112,
+    "asymmetric_reset_supported": true,
+    "runtime_s": 1.99
+  },
+  "C3": {
+    "quantization_unit_mwh": 10.0,
+    "valley_histogram_mwh": 10.74,
+    "gmm_valley_mwh": 35.23,
+    "gmm_micro_mode_mwh": 14.15,
+    "gmm_effective_mode_mwh": 216.85,
+    "frac_micro_lt_50mwh": 0.5814,
+    "micro_reversal_24h": 0.1363,
+    "effective_reversal_24h": 0.3556,
+    "micro_opportunity_assoc_72h": 0.3238,
+    "effective_opportunity_assoc_72h": 0.412,
+    "runtime_s": 124.87
+  },
+  "D": {
+    "stateful_verify_recall": 1.0,
+    "stateful_verify_duplicates": 0,
+    "stateful_verify_no_response_mae": 0.02,
+    "stateless_7d_recall_72h": 0.8146,
+    "stateless_7d_dup_rate_72h": 2.1304,
+    "min_stateful_equivalent_storage_ratio": 0.0417,
+    "ic5_equivalence_met": true,
+    "n_grid_configs": 1176,
+    "runtime_s": 8.75
+  },
+  "Dmin": {
+    "necessary_components": [
+      "eff_cycle",
+      "fsm",
+      "gap_censor",
+      "last_eff_ts",
+      "ordering",
+      "pending",
+      "seen_ids"
+    ],
+    "n_necessary": 7,
+    "runtime_s": 7.64
+  },
+  "E": {
+    "naive_mean_false_no_response": 643.317,
+    "proposed_mean_false_no_response": 4.1,
+    "false_no_response_reduction": 639.217,
+    "proposed_episode_recovery": 0.9663,
+    "ic6_benefit_supported": true,
+    "n_dense_users": 35,
+    "n_regimes": 18,
+    "runtime_s": 507.4
+  }
+}

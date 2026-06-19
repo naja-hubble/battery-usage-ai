@@ -1,0 +1,3 @@
+step_class,n_steps,frac_persist_6h,frac_reversed_6h,frac_full_reversed_6h,frac_persist_24h,frac_reversed_24h,frac_full_reversed_24h,frac_persist_72h,frac_reversed_72h,frac_full_reversed_72h,frac_opportunity_associated_72h
+micro,25135,0.8358,0.0789,0.017,0.6268,0.1363,0.0292,0.3394,0.1747,0.037,0.3238
+effective,18095,0.6329,0.2031,0.0694,0.3565,0.3556,0.1171,0.1738,0.4495,0.1445,0.412

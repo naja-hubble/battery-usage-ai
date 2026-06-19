@@ -1,0 +1,21 @@
+{
+  "narrow_fallback": {
+    "definition": "fixed_50mWh",
+    "threshold_mwh": 50.0,
+    "evidence": "micro(<50mWh) fraction=0.581; label-Jaccard stable plateau near 50 mWh (see C2 sweep)"
+  },
+  "medium_scope": {
+    "definition": "above_quantization_and_noise_band",
+    "threshold_mwh_floor": 30.0,
+    "evidence": "quantization=10mWh; median noise scale=30mWh; valley=11mWh (hist)"
+  },
+  "broad_preferred": {
+    "definition": "max(k*quantization, alpha*DesignCapacity, noise_percentile)",
+    "k": 2,
+    "alpha_pct_design": 0.1,
+    "noise_percentile": 50,
+    "evidence": "adaptive to per-device quantization, design capacity and observed noise; bootstrap valley CI in effective_threshold_bootstrap.csv"
+  },
+  "data_driven_valley_mwh": 10.74,
+  "gmm_valley_mwh": 35.23
+}

@@ -1,0 +1,10 @@
+claim_dimension,scope,recommended_wording,evidence
+effective_threshold,narrow,fixed 50 mWh,micro fraction<50mWh=0.5814; GMM valley=35.23mWh
+effective_threshold,medium,threshold above gauge quantization/noise band,quantization=10.0mWh; data-driven valley bracketed by bootstrap CI
+effective_threshold,broad,"adaptive max(k*quantization, alpha*DesignCapacity, noise pct)",bracketed by per-user quantization + design capacity + observed noise
+response_window,narrow,72h END-anchored,A3 contamination 0 at END; B median response ~49h
+response_window,broad,configurable 24/72/168h bounded window,B hazard curves at 24/72/168h
+retention,narrow,30-day raw + minimal causal state,D stateful equivalence at storage<<raw
+retention,broad,any bounded raw window with persistent minimal sufficient state,"D grid recall=1, dup=0 across 7..90d retention"
+opportunity_band,narrow,80/20/80 RSOC,production primary band
+opportunity_band,broad,configurable high/low bands (70/30..90/10),B by-band curves consistent

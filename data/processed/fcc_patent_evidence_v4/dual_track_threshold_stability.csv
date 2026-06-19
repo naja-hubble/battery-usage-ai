@@ -1,0 +1,6 @@
+effective_threshold_mwh,n_actionable,label_jaccard_vs_50mwh
+20.0,120,0.5742
+30.0,193,0.9234
+50.0,209,1.0
+75.0,217,0.9631
+100.0,218,0.9587

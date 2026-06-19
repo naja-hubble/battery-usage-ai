@@ -1,0 +1,3 @@
+method,point_mwh,ci_lo_mwh,ci_hi_mwh
+valley_histogram,10.74,10.74,30.0
+gmm2_valley,35.23,26.7,55.27

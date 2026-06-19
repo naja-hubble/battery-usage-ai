@@ -1,0 +1,2 @@
+config,stateful_recall,stateful_episode_id_symmetric_diff,stateful_duplicate_count,stateful_no_response_mae,n_users_verified
+"bounded W=30d stride=7d vs full-retention, rw=72h gap=ok_only",1.0,0,0,0.02,200

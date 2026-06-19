@@ -1,0 +1,10 @@
+anchor,window_h,n_counted_steps,frac_steps_before_completion,frac_steps_at_or_before_completion,duplicate_attribution_rate,confirmed_no_response,censored,n_responded_episodes,agreement_with_production_end_72h
+start,24,1158,0.86615,0.89637,0.06304,1530,1,789,
+start,72,2521,0.55692,0.58985,0.21499,1176,16,1139,0.9724
+start,168,4752,0.3287,0.34933,0.3447,881,37,1430,
+low,24,1276,0.49138,0.56897,0.09248,1418,10,896,
+low,72,2325,0.27011,0.31398,0.24301,1187,21,1122,0.98836
+low,168,4683,0.1341,0.1561,0.35896,877,47,1429,
+end,24,794,0.0,0.12972,0.06801,1734,12,574,
+end,72,1827,0.0,0.05638,0.22496,1402,21,901,0.93273
+end,168,4209,0.0,0.02447,0.34735,959,49,1338,
