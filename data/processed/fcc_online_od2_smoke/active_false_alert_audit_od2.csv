@@ -1,0 +1,8 @@
+label_v2,n_users,active_false_alert_legacy_any_change,active_false_alert_online_any_state,active_false_alert_online_effective_state,n_micro_wobble_only,analysis_timestamp,code_version,window_days,stride_days,effective_step_definition
+STATEFUL_FW_CHECK_CORE,2,1,1,0,1,2026-07-08T17:45:27Z,rolling30-od2.0,30,1,abs_ge_50mWh
+STATEFUL_FW_WATCH_HIGH_ANOMALY,7,4,4,0,4,2026-07-08T17:45:27Z,rolling30-od2.0,30,1,abs_ge_50mWh
+STATEFUL_GAUGE_SOFT_CALIBRATION_EFFECTIVE_ONLY,2,2,2,0,2,2026-07-08T17:45:27Z,rolling30-od2.0,30,1,abs_ge_50mWh
+STATEFUL_NORMAL_RESPONDING,3,3,3,2,2,2026-07-08T17:45:27Z,rolling30-od2.0,30,1,abs_ge_50mWh
+STATEFUL_REVIEW_DATA_QUALITY,11,8,2,1,10,2026-07-08T17:45:27Z,rolling30-od2.0,30,1,abs_ge_50mWh
+STATEFUL_WATCH_LARGE_GAP_OR_CENSORED,6,6,6,6,6,2026-07-08T17:45:27Z,rolling30-od2.0,30,1,abs_ge_50mWh
+STATEFUL_WATCH_LOW_EVIDENCE,9,9,9,9,3,2026-07-08T17:45:27Z,rolling30-od2.0,30,1,abs_ge_50mWh

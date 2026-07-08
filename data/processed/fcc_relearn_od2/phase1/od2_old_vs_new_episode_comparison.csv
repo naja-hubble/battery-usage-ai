@@ -1,0 +1,7 @@
+definition,n_episodes,n_users,n_ok,n_users_with_ok,ok_responded_72h,ok_no_response_72h,ok_censored_72h,ok_response_rate_72h
+OLD:strict_90_10_90,5750,517,829,180,328,491,10,0.4005
+OLD:primary_80_20_80,11342,598,2319,294,901,1402,16,0.3912
+OLD:secondary_85_15_85,7619,551,1249,218,490,748,11,0.3958
+OD2:typeA,3913,475,408,117,167,233,8,0.4175
+OD2:typeB,34578,704,32228,692,8497,23512,219,0.2655
+OD2:union,36225,706,30511,687,7839,22463,209,0.2587

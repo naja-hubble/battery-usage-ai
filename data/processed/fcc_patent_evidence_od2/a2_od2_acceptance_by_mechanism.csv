@@ -1,0 +1,4 @@
+mechanism,n_anchors,n_users,true_resp_prob_168h,true_resp_prob_72h,boot_lo_168h,null_mean_168h_range,n_controls_outside_null,n_controls_directionally_supported,stimulus_response_supported,runtime_s
+A,388,108,0.6366,0.40979,0.5323,"[0.41703, 0.5359]",4,3,True,20.89
+B,31543,674,0.36835,0.2645,0.32103,"[0.1808, 0.29396]",4,4,True,869.65
+union,29868,670,0.35891,0.25767,0.31287,"[0.19957, 0.28917]",4,4,True,866.72

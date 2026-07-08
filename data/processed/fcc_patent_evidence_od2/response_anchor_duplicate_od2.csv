@@ -1,0 +1,4 @@
+window_h,pooled_AB_duplicate_rate,pooled_AB_n_duplicate,pooled_AB_n_total_attr,union_duplicate_rate,union_n_duplicate,union_n_total_attr,duplicate_attr_removed,rate_reduction
+24,0.15103,1336,8846,0.14268,1151,8067,185,0.00835
+72,0.42557,8442,19837,0.41301,7473,18094,969,0.01256
+168,0.65605,28260,43076,0.64007,25257,39460,3003,0.01598

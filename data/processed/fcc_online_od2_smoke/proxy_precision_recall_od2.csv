@@ -1,0 +1,7 @@
+population,proxy,n_flagged,n_proxy,tp,precision,recall,analysis_timestamp,code_version,window_days,stride_days,effective_step_definition
+FW_CORE,FW,2,1,1,0.5,1.0,2026-07-08T17:45:27Z,rolling30-od2.0,30,1,abs_ge_50mWh
+FW_CORE+FW_WATCH,FW,9,1,1,0.1111,1.0,2026-07-08T17:45:27Z,rolling30-od2.0,30,1,abs_ge_50mWh
+FW_ENGINEERING_TOP50,FW,29,1,1,0.0345,1.0,2026-07-08T17:45:27Z,rolling30-od2.0,30,1,abs_ge_50mWh
+FW_ENGINEERING_TOP100,FW,29,1,1,0.0345,1.0,2026-07-08T17:45:27Z,rolling30-od2.0,30,1,abs_ge_50mWh
+GAUGE_CORE,GAUGE,0,2,0,0.0,0.0,2026-07-08T17:45:27Z,rolling30-od2.0,30,1,abs_ge_50mWh
+GAUGE_CORE+SOFT,GAUGE,2,2,0,0.0,0.0,2026-07-08T17:45:27Z,rolling30-od2.0,30,1,abs_ge_50mWh

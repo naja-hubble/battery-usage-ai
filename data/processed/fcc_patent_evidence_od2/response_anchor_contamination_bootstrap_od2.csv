@@ -1,0 +1,7 @@
+mechanism,anchor,window_h,metric,point,ci_lo,ci_hi
+A,start,168,contamination_frac,0.48507,0.4343,0.54867
+A,low,168,contamination_frac,0.25873,0.20155,0.32916
+A,end,168,contamination_frac,0.0,0.0,0.0
+B,arm,168,contamination_frac,0.03405,0.02752,0.04003
+B,end,168,contamination_frac,0.0,0.0,0.0
+union,end,168,contamination_frac,0.0,0.0,0.0

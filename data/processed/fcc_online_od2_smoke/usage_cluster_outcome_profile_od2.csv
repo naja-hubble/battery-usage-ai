@@ -1,0 +1,9 @@
+cluster_id,cluster_profile_name,n_windows,share_response,share_no_response,share_censored,share_large_gap,share_fw_core,share_gauge_core,share_soft_calibration,analysis_timestamp,code_version,window_days,stride_days,effective_step_definition
+-1,SPARSE_OR_GAPPY,955,0.0656,0.9344,0.5719,0.0248,0.0,0.0,0.0,2026-07-08T17:45:27Z,rolling30-od2.0,30,1,abs_ge_50mWh
+0,MOBILE_DEEP_CYCLE,1359,0.1894,0.8106,0.266,0.0488,0.0,0.0,0.0,2026-07-08T17:45:27Z,rolling30-od2.0,30,1,abs_ge_50mWh
+1,AC_BOUND,1507,0.0,0.0,0.0,0.0,0.0,0.25,0.25,2026-07-08T17:45:27Z,rolling30-od2.0,30,1,abs_ge_50mWh
+2,MOBILE_DEEP_CYCLE,406,0.0,0.0,0.0,0.0,0.0,0.0,0.0,2026-07-08T17:45:27Z,rolling30-od2.0,30,1,abs_ge_50mWh
+3,AC_BOUND,2148,0.0477,0.9523,0.2241,0.0581,0.0435,0.0,0.0,2026-07-08T17:45:27Z,rolling30-od2.0,30,1,abs_ge_50mWh
+4,MOBILE_DEEP_CYCLE,2540,0.6304,0.3696,0.217,0.0691,0.0,0.0,0.0,2026-07-08T17:45:27Z,rolling30-od2.0,30,1,abs_ge_50mWh
+5,AC_BOUND,909,0.1481,0.8519,0.2183,0.0338,0.1,0.0,0.0,2026-07-08T17:45:27Z,rolling30-od2.0,30,1,abs_ge_50mWh
+6,MOBILE_DEEP_CYCLE,1273,0.072,0.928,0.2256,0.0252,0.0,0.0,0.0,2026-07-08T17:45:27Z,rolling30-od2.0,30,1,abs_ge_50mWh

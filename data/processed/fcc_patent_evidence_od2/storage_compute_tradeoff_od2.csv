@@ -1,0 +1,8 @@
+retention_days,stateless_storage_ratio,stateful_storage_ratio,stateful_storage_ratio_od2_pending,state_bytes_per_user,pending_bytes_per_user_peak,raw_bytes_total
+7,0.0405,0.0417,0.0433,65,88,40500746
+14,0.081,0.0822,0.0838,65,88,40500746
+21,0.1214,0.1227,0.1243,65,88,40500746
+30,0.1735,0.1747,0.1763,65,88,40500746
+45,0.2602,0.2614,0.2631,65,88,40500746
+60,0.347,0.3482,0.3498,65,88,40500746
+90,0.5205,0.5217,0.5233,65,88,40500746

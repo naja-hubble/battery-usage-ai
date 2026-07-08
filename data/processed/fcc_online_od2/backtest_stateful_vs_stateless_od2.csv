@@ -1,0 +1,2 @@
+stateful_detection_n,stateless_detection_n,overlap_detection_n,stateful_only_detection_n,stateless_only_detection_n,fw_core_n,fw_watch_n,gauge_core_n,gauge_soft_n,analysis_timestamp,code_version,window_days,stride_days,effective_step_definition
+260,199,187,73,12,49,99,0,2,2026-07-08T17:46:07Z,rolling30-od2.0,30,1,abs_ge_50mWh

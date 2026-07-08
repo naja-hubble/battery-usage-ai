@@ -1,0 +1,8 @@
+cell,n_users
+old_ok & od2_ok,290
+old_ok & od2_NO,4
+old_NO & od2_ok,397
+old_NO & od2_NO,61
+TOTAL users,752
+users_with_od2_opportunity(any_quality),706
+users_with_ZERO_od2_opportunity(gauge_candidates),46
