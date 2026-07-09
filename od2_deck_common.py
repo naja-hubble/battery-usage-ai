@@ -255,6 +255,232 @@ class Deck:
         self.footer(s)
         return s
 
+    def flowchart(self, title="処理フロー — データ取得から判定まで", tag="§3 Part1"):
+        """Pipeline flowchart. The triage node ⑥ genuinely BIFURCATES the candidates
+        into FW-check vs gauge-reset (exactly 2 arrows). NORMAL/REVIEW/WATCH are
+        non-actionable/hold states emitted by the pre-triage gate, drawn separately."""
+        s = self.section(title, NAVY, tag)
+        GOLD = RGBColor(0xC8, 0x9B, 0x2A)
+        xs = [0.35, 2.85, 5.35, 7.85, 10.35]
+        W = 2.35
+        top = [
+            ("① データ取得", "S3テレメトリ: RSOC/FCC/サイクル/chargeStatus/時刻（HW識別子不使用）", STEEL),
+            ("② 前処理・品質ゲート", "時刻整列・重複除去・OK/SPARSE/COUNTER_RESET判定", STEEL),
+            ("③ 学習機会の抽出（2機構）", "Type A 満充電→≤6%→満充電 / Type B 充電中60-80%通過→満充電（END=満充電）", BLUE),
+            ("④ END起点168h 応答監査", "有効ステップ≥50mWh → responded / no_response / censored", TEAL),
+            ("⑤ 品質ティア＋censored除外", "HIGH_OK/MEDIUM_GAP/LOW_LARGE_GAP・打切りは無応答に数えない", DGREEN),
+        ]
+        ty, th = 1.05, 0.92
+        for i, (t, sub, col) in enumerate(top):
+            self.box(s, Inches(xs[i]), Inches(ty), Inches(W), Inches(th), t, col,
+                     size=10.3, sub=sub, sub_size=8.1)
+            if i < 4:
+                self.line_seg(s, Inches(xs[i] + W), Inches(ty + th / 2),
+                              Inches(xs[i + 1]), Inches(ty + th / 2),
+                              color=GREY, width=2.0, arrow_head=True)
+        # --- counter-operation annotation for ④ (increment / reset / hold) ---
+        self.box(s, Inches(0.4), Inches(2.08), Inches(3.2), Inches(1.12), " ", LIGHT, fg=NAVY, line=NAVY)
+        tfa = _tb(s, Inches(0.55), Inches(2.13), Inches(2.95), Inches(1.02))
+        _set(tfa.paragraphs[0], "④ 応答判定 → カウンタ操作", size=9.8, bold=True, color=NAVY)
+        for txt, col in [("no_response → カウンタ +1", RED),
+                         ("responded(≥50mWh) → 0 にリセット", GREEN),
+                         ("censored → pending（保留・数えない）", GREY)]:
+            q = tfa.add_paragraph(); _set(q, txt, size=9, color=col); q.space_after = Pt(1)
+        # --- L-route from ⑤ into the pre-triage GATE ---
+        cx5 = xs[4] + W / 2; gx = 6.65
+        self.line_seg(s, Inches(cx5), Inches(ty + th), Inches(cx5), Inches(2.12), color=NAVY, width=2.0)
+        self.line_seg(s, Inches(cx5), Inches(2.12), Inches(gx), Inches(2.12), color=NAVY, width=2.0)
+        self.line_seg(s, Inches(gx), Inches(2.12), Inches(gx), Inches(2.32), color=NAVY, width=2.0, arrow_head=True)
+        # --- pre-triage gate (decides candidate vs hold states) ---
+        self.box(s, Inches(3.7), Inches(2.32), Inches(5.9), Inches(0.6),
+                 "前段ゲート：データ十分か / FCC更新継続(候補外)か / 境界か", STEEL, size=11)
+        # --- gate -> HOLD states (right column; non-actionable) ---
+        self.label(s, Inches(9.75), Inches(2.44), Inches(1.4), Inches(0.3), "→ 非アクション/保留", size=9, color=GREY)
+        self.line_seg(s, Inches(9.6), Inches(2.62), Inches(10.35), Inches(3.05), color=GREY, width=1.6, arrow_head=True)
+        holds = [("NORMAL", "候補外＝FCC健全群並みに更新", STEEL, WHITE),
+                 ("REVIEW", "obs<120d / n<200 / カウンタ・パック異常", GREY, WHITE)]
+        for i, (t, sub, col, fg) in enumerate(holds):
+            self.box(s, Inches(10.35), Inches(3.05 + i * 0.66), Inches(2.5), Inches(0.58),
+                     t, col, fg=fg, size=10.5, sub=sub, sub_size=7.8)
+        # --- gate -> ⑥ TWO-WAY triage (candidates) ---
+        self.label(s, Inches(4.35), Inches(3.02), Inches(3.2), Inches(0.28),
+                   "no/low-change候補", size=9.5, color=NAVY)
+        self.line_seg(s, Inches(5.4), Inches(2.92), Inches(3.65), Inches(3.5), color=NAVY, width=2.0, arrow_head=True)
+        self.box(s, Inches(1.4), Inches(3.5), Inches(4.5), Inches(0.62),
+                 "⑥ 二分岐トリアージ（機構別k: A≥3 / B≥5）", NAVY, size=11.5)
+        # exactly TWO branches from ⑥
+        self.line_seg(s, Inches(3.65), Inches(4.12), Inches(2.1), Inches(4.55), color=NAVY, width=2.0, arrow_head=True)
+        self.line_seg(s, Inches(3.65), Inches(4.12), Inches(4.7), Inches(4.55), color=NAVY, width=2.0, arrow_head=True)
+        self.box(s, Inches(0.9), Inches(4.55), Inches(2.4), Inches(0.95), "FW確認候補", RED,
+                 size=11.5, sub="機会あり×無応答", sub_size=8.6)
+        self.box(s, Inches(3.5), Inches(4.55), Inches(2.4), Inches(0.95), "ゲージ再較正候補", ORANGE,
+                 size=11.5, sub="学習機会が皆無", sub_size=8.6)
+        # residual of ⑥: candidates that fit NEITHER FW nor gauge -> WATCH (hold)
+        self.label(s, Inches(6.05), Inches(4.02), Inches(3.0), Inches(0.28),
+                   "どちらも確信できず→保留", size=9, color=GREY)
+        self.line_seg(s, Inches(5.9), Inches(3.9), Inches(7.8), Inches(4.55), color=GREY, width=1.6, arrow_head=True)
+        self.box(s, Inches(6.6), Inches(4.55), Inches(2.4), Inches(0.95), "WATCH", GOLD, fg=INK,
+                 size=11.5, sub="境界/large-gap/完全窓不足", sub_size=8.4)
+        # --- ⑦ bounded-retention ledger strip ---
+        self.box(s, Inches(0.35), Inches(5.72), Inches(12.35), Inches(0.6),
+                 "⑦ 有界保持の因果証拠台帳（最小状態: FSM/pending期限/seen_ids/直近有効変化/gap-censor/順序）"
+                 "→ 直近30日の生データだけで全期間と等価な判定（30日オンライン運用版 = 9段ラベル）",
+                 LIGHT, fg=NAVY, size=10.3, line=NAVY)
+        self.takeaway(s, "前段ゲートで REVIEW(データ不足)/NORMAL(候補外) を除外 → 候補は⑥で『FW確認 ⇄ ゲージ再較正』に二分岐。どちらも確信できない残差は WATCH で保留。")
+        self.footer(s)
+        return s
+
+    def k_basis(self, tag="§3 Part1"):
+        """The empirical justification for the mechanism-specific FW threshold k."""
+        s = self.section("FW閾値 k の根拠 — 機構別に『誤警報5%以下』で較正", DGREEN, tag)
+        tf = _tb(s, Inches(0.55), Inches(1.05), self.SW - Inches(1.1), Inches(0.9))
+        _set(tf.paragraphs[0],
+             "設計方針: 健全なゲージが偶然 k 回連続で無応答になる確率 (1−p)^k を 5% 以下にする（p=健全機の応答率）。"
+             "弱い/高頻度のトリガほど誤って無応答が出やすいので、確信に必要な k は大きくなる。",
+             size=12.5, bold=True, color=NAVY)
+        self.make_table(s, ["機構", "健全応答率 p@168h", "(1−p)^k の計算", "採用 k"],
+            [["Type A（深放電, 強いトリガ）", "0.74", "0.26² = 6.8%(NG) / 0.26³ = 1.8%(OK)", "3"],
+             ["Type B（充電側, 弱い・高頻度）", "0.45", "0.55⁴ = 9.2%(NG) / 0.55⁵ = 5.0%(OK)", "5"]],
+            Inches(0.5), Inches(2.1), [3.7, 2.6, 4.6, 1.4], row_h=0.62, cell_size=11,
+            styler=lambda i, j, v, b: (b, j == 3, DGREEN if j == 3 else INK))
+        tf2 = _tb(s, Inches(0.55), Inches(3.9), self.SW - Inches(1.1), Inches(2.4))
+        self.bullets(tf2, [
+            "健全応答率 p は active-reference（obs≥180d・cycle≥20・凍結<60日・品質OK）から実測（Type A 0.74 / Type B 0.45）",
+            "Type B は健全でも55%が無応答なので、k=4では誤警報9.2%と過大 → k=5で5.0%に収める",
+            "k は固定値ではなく調整可能（§7 代替実施形態）。窓・有効ステップ閾値と同じく感度解析対象",
+            "運用の確定(FW_CORE)は k 単独ではなく『凍結日数・サイクル数・データ品質OK』も併せて要件化"], size=12)
+        self.takeaway(s, "kは恣意的でなく『健全機の誤警報5%以下』から機構別に導出。弱いトリガ(Type B)ほど k を大きくする。")
+        self.footer(s)
+        return s
+
+    def thresholds_slide(self, tag="§7 付録"):
+        """One-page reference of every decision threshold (gate / candidate / FW / gauge)."""
+        s = self.section("付録 — 判定閾値一覧（前段ゲート・候補判定・トリアージ）", GREY, tag)
+        self.make_table(s, ["ラベル / 段", "判定条件（各行内はAND。『いずれか』はOR）"],
+            [["REVIEW（保留）", "obs<120日 ／ n_samples<200 ／ cycleCount減少・serialNumber変化 の いずれか"],
+             ["候補判定", "fcc_changes=0&obs≥120 ／ flat_tail≥180日 ／ cycle≥50&更新率≤4.24 ／ obs≥180&更新率≤1.41 の いずれか"],
+             ["NORMAL", "候補条件に一つも該当しない（FCCが健全群並みに更新）"],
+             ["FW確認", "候補 & flat_tail≥180日 & tail_cycle≥30 & 品質OK & (Type B無応答≥5 or Type A無応答≥3)"],
+             ["ゲージ再較正", "候補 & flat_tail≥120日 & 学習機会ゼロ(A・Bとも) & 使用ゲート & 品質OK"],
+             ["WATCH（保留）", "候補だがFW・ゲージのどちらにも確信できない残差（境界 / large-gap / 完全窓不足）"]],
+            Inches(0.4), Inches(1.0), [2.3, 10.5], row_h=0.56, cell_size=9.6)
+        py = 4.9
+        self.box(s, Inches(0.4), Inches(py), Inches(12.5), Inches(1.35), " ", LIGHT, fg=NAVY, line=NAVY)
+        self.label(s, Inches(0.6), Inches(py + 0.06), Inches(6), Inches(0.3), "■ 共通パラメータ",
+                   size=11, bold=True, color=NAVY)
+        tf = _tb(s, Inches(0.6), Inches(py + 0.38), self.SW - Inches(1.2), Inches(0.92))
+        self.bullets(tf, [
+            "満充電(END): RSOC≥99% ／ Type A 深放電: RSOC≤6% ／ Type B: 充電中に60-80%を通過(abort<60)",
+            "有効ステップ: |ΔFCC|≥50mWh ／ 応答窓: 168h(主, 24/72hは副) ／ 品質ティア: HIGH_OK≤12h・MEDIUM_GAP≤24h",
+            "FW閾値k: A=3 / B=5（健全応答0.74/0.45から誤警報5%以下で導出）｜ p05(健全群): 4.24(/100cyc)・1.41(/100d), active-reference n=214",
+            "※ 更新率の単位は /100cyc・/100d。窓・各閾値は代替実施形態として調整可能（一部の微調整値は営業秘密として非公開）"],
+            size=9.8, color=INK, gap=2)
+        self.takeaway(s, "全ラベルは透明なしきい値ルール（機種名は不使用）。数値は本解析の運用値で、窓・閾値は調整可能な代替実施形態。")
+        self.footer(s)
+        return s
+
+    def quality_tier_slide(self, tag="§7 付録"):
+        """Appendix detail of step ⑤: graded quality tier + censored exclusion."""
+        s = self.section("付録 — 品質ティア＋censored除外（⑤の判定詳細）", GREY, tag)
+        tf = _tb(s, Inches(0.55), Inches(1.02), self.SW - Inches(1.1), Inches(0.95))
+        self.bullets(tf, [
+            "目的: データの穴(大ギャップ)・打切り(未観測窓)を『無応答』と誤計上しない（根拠E: 誤無応答 204→5, 約40x削減）",
+            "品質スコア = 0.45×(最大ギャップ成分) + 0.35×(観測カバレッジ) + 0.20×(端点ギャップ成分)（重み和=1.0）"
+            "｜ 最大ギャップ成分: ≤12h→1.0 / 12-24hで1.0→0.5 / 24-48hで0.5→0.0 / >48h→0"], size=11, gap=3)
+        self.make_table(s, ["品質ティア", "条件", "no_response 計上"],
+            [["HIGH_OK", "max_gap ≤ 12h かつ score ≥ 0.80", "✅ 可（FW_CORE/GAUGE_CORE も支持）"],
+             ["MEDIUM_GAP", "max_gap ≤ 24h かつ score ≥ 0.50", "✅ 可（FW_WATCH。FW_CORE単独は不可）"],
+             ["LOW_LARGE_GAP", "それ以外", "❌ 曖昧のみ・数えない"],
+             ["INVALID", "FCC/RSOC欠損・順序異常", "❌ 除外"]],
+            Inches(0.5), Inches(2.05), [2.6, 4.9, 5.3], row_h=0.56, cell_size=10.5,
+            styler=lambda i, j, v, b: (b, j == 2,
+                                       (GREEN if "✅" in v else RED if "❌" in v else INK) if j == 2 else INK))
+        tf2 = _tb(s, Inches(0.55), Inches(4.85), self.SW - Inches(1.1), Inches(1.5))
+        self.bullets(tf2, [
+            "censored除外: 応答窓 END+168h が最終観測サンプルより後 → censored → pending(保留)・数えない（END+168h ≤ 最終観測 なら no_response 確定可）",
+            "計上ルール: no_response(+1) は『(HIGH_OK または MEDIUM_GAP) かつ 非censored』の機会だけ。それ以外は保留（加算しない）",
+            "※ 全履歴監査版は簡易に最大ギャップ 12h/24h のみでティア分け（オンライン版はスコア併用）。結論は同じ"], size=10.5, gap=3)
+        self.takeaway(s, "データの穴と打切りを冤罪にしない二重の関門。数えるのは『十分サンプリング(≤12/24h)＋完全観測(非censored)』の機会のみ。")
+        self.footer(s)
+        return s
+
+    def detail_flow_audit(self, title="詳細フロー① ④⑤ — 機会ごとの判定と『Type A / Type B 別カウント』", tag="§3 Part1"):
+        """Per-opportunity flow for ④(response)+⑤(quality/censored) — emphasises that the
+        no-response count is kept SEPARATELY per mechanism (Type A vs Type B)."""
+        s = self.section(title, NAVY, tag)
+        GOLD = RGBColor(0xC8, 0x9B, 0x2A)
+        # header
+        self.box(s, Inches(0.5), Inches(1.08), Inches(12.3), Inches(0.58),
+                 "学習機会の END（満充電到達）— この機会は Type A（深放電サイクル）か Type B（充電側部分再学習）のどちらか（③で確定済み）",
+                 STEEL, size=11)
+        self.line_seg(s, Inches(5.0), Inches(1.66), Inches(5.0), Inches(1.92), color=NAVY, width=2.0, arrow_head=True)
+        # shared judgment (same for A and B)
+        self.box(s, Inches(0.5), Inches(1.92), Inches(9.0), Inches(0.92),
+                 "共通判定（A・B 同じロジック）  ⑤品質ティア(HIGH_OK / MEDIUM_GAP のみ有効) → "
+                 "⑤完全観測(END+168h ≤ 最終観測サンプル = 非censored) → ④ 窓[END, END+168h] に 有効ステップ |ΔFCC|≥50mWh か？",
+                 DGREEN, size=9.6)
+        self.box(s, Inches(9.65), Inches(1.98), Inches(3.15), Inches(0.8),
+                 "LOW_LARGE_GAP / INVALID / censored → 保留（どちらのカウンタにも数えない）", GOLD, fg=INK, size=9)
+        # split into two mechanism lanes
+        self.line_seg(s, Inches(2.72), Inches(2.84), Inches(2.72), Inches(3.32), color=NAVY, width=2.0, arrow_head=True)
+        self.line_seg(s, Inches(7.32), Inches(2.84), Inches(7.32), Inches(3.32), color=NAVY, width=2.0, arrow_head=True)
+        lanes = [
+            (0.55, "Type A（深放電サイクル）の機会", BLUE, "Type A 無応答カウンタ", "→ FW判定に寄与: Type A 無応答 ≥ 3"),
+            (5.15, "Type B（充電側部分再学習）の機会", TEAL, "Type B 無応答カウンタ", "→ FW判定に寄与: Type B 無応答 ≥ 5"),
+        ]
+        lw = 4.35
+        for lx, hdr, hcol, ctr, fwnote in lanes:
+            self.box(s, Inches(lx), Inches(3.32), Inches(lw), Inches(0.5), hdr, hcol, size=10.5)
+            self.box(s, Inches(lx), Inches(3.95), Inches(lw), Inches(0.56), f"④ no_response → {ctr} +1", RED, size=10.5)
+            self.box(s, Inches(lx), Inches(4.63), Inches(lw), Inches(0.56), "④ responded (≥50mWh) → 同カウンタ 0 にリセット", GREEN, size=9.8)
+            self.box(s, Inches(lx), Inches(5.31), Inches(lw), Inches(0.5), fwnote, LBLUE_BG, fg=NAVY, size=9.8)
+        self.takeaway(s, "★各機会は Type A / Type B のどちらか。共通の判定(⑤④)を通し、無応答なら『その機構』のカウンタに +1・応答なら 0 リセット。"
+                       "A と B は別カウンタ・別閾値（FW: A≥3 / B≥5）で数える。")
+        self.footer(s)
+        return s
+
+    def detail_flow_triage(self, title="詳細フロー② ⑥ — ユーザーごとの二分岐トリアージ（候補のみ）", tag="§3 Part1"):
+        """Per-user triage cascade for step ⑥ (first matching rule wins), with thresholds."""
+        s = self.section(title, NAVY, tag)
+        GOLD = RGBColor(0xC8, 0x9B, 0x2A)
+        mx, mw, ox, ow = 0.9, 7.0, 8.3, 4.6
+        cx = mx + mw / 2
+
+        def down(y1, y2, label="No ↓"):
+            self.line_seg(s, Inches(cx), Inches(y1), Inches(cx), Inches(y2), color=NAVY, width=2.0, arrow_head=True)
+            if label:
+                self.label(s, Inches(cx - 1.15), Inches((y1 + y2) / 2 - 0.14), Inches(1.0), Inches(0.28),
+                           label, size=9, color=GREY)
+
+        def yes(box_bottom_y, out_y, text, col):
+            self.line_seg(s, Inches(mx + mw), Inches(box_bottom_y - 0.34), Inches(ox), Inches(out_y + 0.28),
+                          color=GREEN, width=1.6, arrow_head=True)
+            self.box(s, Inches(ox), Inches(out_y), Inches(ow), Inches(0.56), text, col, size=10.5)
+
+        self.box(s, Inches(mx), Inches(1.1), Inches(mw), Inches(0.52), "候補（前段ゲートで REVIEW/NORMAL は除外済）", STEEL, size=10.5)
+        down(1.62, 1.85, "")
+        ys = [1.85, 2.68, 3.51, 4.34]
+        dh = 0.72
+        decs = [
+            ("① FW確認(high): flat_tail≥180日 & tail_cyc≥30 & 品質OK & (Type B無応答≥5 or Type A無応答≥3)", "FW確認候補（high）", RED),
+            ("② ゲージ(high): flat_tail≥120日 & 学習機会ゼロ(A・Bとも) & 使用ゲート & 品質OK", "ゲージ再較正候補（high）", ORANGE),
+            ("③ FW確認(medium): flat_tail≥120日 & tail_cyc≥20 & Type B無応答≥4", "FW確認候補（medium）", RED),
+            ("④ ゲージ(medium): flat_tail≥60日 & 学習機会ゼロ & 使用ゲート", "ゲージ再較正候補（medium）", ORANGE),
+        ]
+        for i, (dtext, otext, ocol) in enumerate(decs):
+            self.box(s, Inches(mx), Inches(ys[i]), Inches(mw), Inches(dh), dtext, NAVY, size=9.3)
+            yes(ys[i] + dh, ys[i] + 0.08, otext, ocol)
+            nexty = ys[i + 1] if i + 1 < len(ys) else 5.17
+            down(ys[i] + dh, nexty, "No ↓")
+        self.box(s, Inches(mx), Inches(5.17), Inches(mw), Inches(0.52), "上記いずれも不成立 → WATCH（保留）", GOLD, fg=INK, size=10.5)
+        self.label(s, Inches(0.55), Inches(5.82), Inches(12.4), Inches(0.5),
+                   "適用順: fw_high > gauge_high > fw_med > gauge_med > watch（上から順・最初の一致で確定）｜ "
+                   "使用ゲート = tail_cycle<20 / tail_min_rsoc>20 / tail_rsoc_swing<60 / tail_ac≥0.80 のいずれか（mediumは <30 / >25 / <50 / ≥0.75）",
+                   size=8.8, color=GREY)
+        self.takeaway(s, "候補を上から順に判定し、最初に一致した規則で確定。FW=機会ありに無応答(機構別≥k)、ゲージ=学習機会ゼロ、どれも不成立ならWATCH。")
+        self.footer(s)
+        return s
+
     def notes(self, slide, budget, text):
         ns = slide.notes_slide
         ns.notes_text_frame.text = f"[目安 {budget}]\n{text}"

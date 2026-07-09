@@ -87,12 +87,11 @@ def attribution_window():
     for x, y in zip(w, expl):
         ax.annotate(f"{y:.0f}%", (x, y), textcoords="offset points", xytext=(0, 10),
                     ha="center", fontsize=11, color=NAVY, fontweight="bold")
-    ax.axvline(72, color=GREY, ls=":", lw=1.3); ax.axvline(168, color=GREEN, ls="--", lw=1.6)
-    ax.text(72, 40, "old def window\n(72h)", color=GREY, fontsize=9.5, ha="center")
-    ax.text(168, 40, "new def primary\n(168h / 7d)", color=GREEN, fontsize=9.5, ha="center")
+    ax.axvline(168, color=GREEN, ls="--", lw=1.8)
+    ax.text(168, 40, "168h\n(primary window)", color=GREEN, fontsize=10, ha="center", fontweight="bold")
     ax.set_xlabel("response window (hours)"); ax.set_ylabel("% of real FCC updates explained\nby a Type A/B opportunity")
     ax.set_ylim(35, 100); ax.set_xticks(w)
-    ax.set_title("Relearn latency exceeds 72h  ->  168h primary window", color=NAVY, fontweight="bold")
+    ax.set_title("Why 168h: relearn response accrues past 72h (86% by 7d)", color=NAVY, fontweight="bold")
     save(fig, "od2_attribution_window.png")
 
 
@@ -179,17 +178,14 @@ def mechanism_strength():
 # --------------------------------------------------------------------------- #
 def triage_offline():
     cats = ["FW check", "GAUGE reset", "WATCH"]
-    od1 = [14, 18, 55]; od2 = [35, 10, 42]
-    x = np.arange(len(cats)); w = 0.38
-    fig, ax = plt.subplots(figsize=(7.2, 4.2))
-    ax.bar(x - w/2, od1, w, color=LGREY, label="old def (72h)")
-    ax.bar(x + w/2, od2, w, color=BLUE, label="new def (168h)")
-    for i, (a, b_) in enumerate(zip(od1, od2)):
-        ax.text(i - w/2, a + 0.7, str(a), ha="center", fontsize=10, color=GREY)
-        ax.text(i + w/2, b_ + 0.7, str(b_), ha="center", fontsize=10, color=NAVY, fontweight="bold")
-    ax.set_xticks(x); ax.set_xticklabels(cats)
-    ax.set_ylabel("users"); ax.legend()
-    ax.set_title("Offline triage shift: FW up (14->35), GAUGE down (18->10)",
+    vals = [35, 10, 42]
+    fig, ax = plt.subplots(figsize=(7.0, 4.2))
+    b = ax.bar(cats, vals, color=[RED, ORANGE, "#D9A42A"], width=0.55)
+    for rect, v in zip(b, vals):
+        ax.text(rect.get_x() + rect.get_width()/2, v + 0.8, str(v), ha="center",
+                fontsize=14, color=NAVY, fontweight="bold")
+    ax.set_ylabel("users"); ax.set_ylim(0, 50)
+    ax.set_title("Full-history triage of candidates:\nFW check 35 / GAUGE reset 10 / WATCH 42",
                  color=NAVY, fontweight="bold")
     save(fig, "od2_triage_offline.png")
 
@@ -199,19 +195,17 @@ def triage_offline():
 # --------------------------------------------------------------------------- #
 def online_tiers():
     tiers = ["REVIEW_DQ", "NORMAL", "WATCH_LGC", "WATCH_LOW", "FW_WATCH",
-             "FW_CORE", "GAUGE_SOFT", "GAUGE_REV", "GAUGE_CORE"]
-    od1 = [325, 183, 128, 35, 43, 5, 22, 7, 4]
-    od2 = [325, 41, 70, 166, 99, 49, 2, 0, 0]
-    y = np.arange(len(tiers)); h = 0.38
-    fig, ax = plt.subplots(figsize=(8.4, 5.0))
-    ax.barh(y + h/2, od1, h, color=LGREY, label="old def")
-    ax.barh(y - h/2, od2, h, color=BLUE, label="new def")
-    for i, (a, b_) in enumerate(zip(od1, od2)):
-        ax.text(a + 3, i + h/2, str(a), va="center", fontsize=9, color=GREY)
-        ax.text(b_ + 3, i - h/2, str(b_), va="center", fontsize=9, color=NAVY, fontweight="bold")
-    ax.set_yticks(y); ax.set_yticklabels(tiers, fontsize=10); ax.invert_yaxis()
-    ax.set_xlabel("users"); ax.legend(loc="lower right")
-    ax.set_title("Online 9-tier: FW_CORE 5->49, GAUGE_CORE 4->0, NORMAL 183->41",
+             "FW_CORE", "GAUGE_SOFT", "GAUGE_REVIEW", "GAUGE_CORE"]
+    vals = [325, 41, 70, 166, 99, 49, 2, 0, 0]
+    cols = [GREY, GREEN, "#8AA6C8", "#8AA6C8", "#D9776B", RED, ORANGE, ORANGE, ORANGE]
+    y = np.arange(len(tiers))
+    fig, ax = plt.subplots(figsize=(8.2, 4.9))
+    ax.barh(y, vals, color=cols, height=0.62)
+    for i, v in enumerate(vals):
+        ax.text(v + 3, i, str(v), va="center", fontsize=10, color=NAVY, fontweight="bold")
+    ax.set_yticks(y); ax.set_yticklabels(tiers, fontsize=10.5); ax.invert_yaxis()
+    ax.set_xlabel("users")
+    ax.set_title("Online 9-tier labels (30-day operation): FW_CORE 49 / GAUGE_CORE 0",
                  color=NAVY, fontweight="bold")
     save(fig, "od2_online_tiers.png")
 
@@ -220,16 +214,17 @@ def online_tiers():
 # 8. Coverage doubling
 # --------------------------------------------------------------------------- #
 def coverage():
-    fig, ax = plt.subplots(figsize=(6.4, 4.2))
-    labels = ["old def\n(80/20/80)", "new def\n(Type A + B)"]
-    vals = [294, 687]; cols = [LGREY, GREEN]
+    fig, ax = plt.subplots(figsize=(6.6, 4.1))
+    labels = ["auditable\n(>=1 opportunity)", "zero-opportunity\n(gauge candidate)"]
+    vals = [687, 46]; cols = [GREEN, ORANGE]
     b = ax.bar(labels, vals, color=cols, width=0.5)
     for rect, v in zip(b, vals):
         ax.text(rect.get_x()+rect.get_width()/2, v+8, str(v), ha="center",
-                fontsize=13, color=NAVY, fontweight="bold")
+                fontsize=14, color=NAVY, fontweight="bold")
     ax.axhline(752, color=GREY, ls=":", lw=1.2); ax.text(0.02, 758, "cohort = 752", color=GREY, fontsize=9)
-    ax.set_ylim(0, 800); ax.set_ylabel("users with an OK-quality learning opportunity")
-    ax.set_title("Opportunity coverage more than doubles (294 -> 687)", color=NAVY, fontweight="bold")
+    ax.set_ylim(0, 800); ax.set_ylabel("users")
+    ax.set_title("Auditable coverage: 687 / 752 users have a learning opportunity",
+                 color=NAVY, fontweight="bold")
     save(fig, "od2_coverage.png")
 
 
@@ -270,8 +265,33 @@ def retention():
     save(fig, "od2_retention.png")
 
 
+def quality_components():
+    """Illustrate the 3 quality-score components on one episode waveform."""
+    fig, ax = plt.subplots(figsize=(9.6, 4.4))
+    tpre = np.arange(0, 28.1, 2.0)
+    rpre = np.linspace(100, 8, len(tpre))
+    tpost = np.array([48, 50, 52, 54, 56, 58, 60, 64, 68, 72])
+    rpost = np.array([55, 72, 86, 95, 99, 100, 100, 100, 100, 100])
+    ax.plot(tpre, rpre, "-o", color=BLUE, ms=4, lw=1.8, label="observed sample")
+    ax.plot(tpost, rpost, "-o", color=BLUE, ms=4, lw=1.8)
+    ax.plot([28, 38, 48], [8, 3, 55], "--", color=LGREY, lw=1.6)   # unobserved bridge
+    ax.axvspan(28, 48, color=RED, alpha=0.10)
+    ax.annotate("(1) max gap = 20h   /   (2) unobserved time -> coverage down",
+                xy=(38, 88), ha="center", fontsize=10, color=RED, fontweight="bold")
+    for tt, rr, name, dy in [(0, 100, "START", 7), (38, 3, "LOW (unobserved)", -13), (58, 100, "END", 7)]:
+        ax.plot([tt], [rr], marker="v", color=NAVY, ms=9)
+        ax.annotate(name, xy=(tt, rr), xytext=(tt, rr + dy), ha="center", fontsize=9, color=NAVY)
+    ax.annotate("(3) endpoint gap\n(near END, small = good)", xy=(57.5, 88), xytext=(38, 40),
+                fontsize=9.5, color=GREEN, arrowprops=dict(arrowstyle="->", color=GREEN))
+    ax.set_xlim(-2, 74); ax.set_ylim(0, 114); ax.set_xlabel("time (h)"); ax.set_ylabel("RSOC (%)")
+    ax.legend(loc="lower right", fontsize=9)
+    ax.set_title("Quality-score components: (1) max gap  (2) coverage  (3) endpoint gap",
+                 color=NAVY, fontweight="bold")
+    save(fig, "od2_quality_components.png")
+
+
 if __name__ == "__main__":
     mechanism_diagram(); attribution_window(); negative_control(); response_hazard()
     mechanism_strength(); triage_offline(); online_tiers(); coverage()
-    missingness(); retention()
+    missingness(); retention(); quality_components()
     print("\nAll new def figures written to", FIG)
